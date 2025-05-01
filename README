@@ -13,6 +13,7 @@ composer websyspro/dynamicsql:dev-main
 
 Como Usar:
 
+<pre>
 <?php
 
 use Websyspro\DynamicSql\TFindByFN;
@@ -32,6 +33,7 @@ $findByFN = new TFindByFN(
   )
 );
 
-var_dump($findByFN->getConditions());
+var_dump($findByFN->getConditions()); 
+</pre>
 
 Result:: "Document.Id = 1 And Document.Description Like 'Compras%'"
