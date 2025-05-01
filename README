@@ -1,4 +1,4 @@
-# Websyspro/dynamicsql 1.1.0
+# Websyspro/dynamicsql dev
 
 Library for managing controllers and services
 
@@ -9,4 +9,25 @@ Library for managing controllers and services
 
 ## 🚀 Instalação
 
-composer websyspro/server
+composer websyspro/dynamicsql:dev-main
+
+Como Usar:
+
+<?php
+
+class Documet
+{
+  public int $Id;
+  public string $Description;
+}
+
+$findByFN = new TFindByFN(
+  fn(Document $d) => (
+    $d->Id === 1 &&
+    $d->Description === "Compras%"
+  )
+);
+
+var_dump($findByFN->getConditions());
+
+Result:: "Document.Id = 1 And Document.Description Like 'Compras%'"
