@@ -1,0 +1,20 @@
+{
+  "name": "websyspro/dynamicsql",
+  "description": "Set of features in PHP for creating dynamic SQL",
+  "license": "MIT",
+  "type": "library",
+  "autoload": {
+      "psr-4": {
+          "Websyspro\\DynamicSql\\": "src/"
+      }
+  },
+  "authors": [
+      {
+          "name": "websyspro",
+          "email": "websyspro.services@gmail.com"
+      }
+  ],
+  "require": {
+    "websyspro/common": "dev-main"
+  }
+}
