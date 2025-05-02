@@ -37,7 +37,7 @@ class TFindByFNParams
 
     $columnsTypes = (
       new StructureTable($this->entity)
-    )->Columns()->Types();
+    )->Columns()->List();
 
     $this->propertys->Mapper(
       fn(ReflectionProperty $rp) => (
