@@ -95,19 +95,6 @@ class TFindByFNCondition
     return "'{$value}'";
   }
   
-  public function setValueMatch(
-    string $value,
-    ColumnType $columnType
-  ): mixed {
-    return match($columnType){
-      ColumnType::Decimal => $columnType->Encode($value),
-      ColumnType::Text => $columnType->Encode($value),
-      ColumnType::Datetime => $columnType->Encode($value),
-      ColumnType::Datetime => $columnType->Encode($value),
-        default => $value
-    };
-  }
-
   public function valueIsList(
   ): bool {
     return (bool)preg_match("/^\[/", $this->value) 
