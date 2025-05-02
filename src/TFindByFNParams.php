@@ -5,6 +5,8 @@ namespace Websyspro\DynamicSql;
 use ReflectionClass;
 use ReflectionProperty;
 use Websyspro\Commons\TList;
+use Websyspro\Entity\Core\StructureTable;
+use Websyspro\Entity\Shareds\Properties;
 
 class TFindByFNParams
 {
@@ -33,10 +35,18 @@ class TFindByFNParams
       )
     );
 
+    $columnsTypes = (
+      new StructureTable($this->entity)
+    )->Columns()->Types();
+
     $this->propertys->Mapper(
       fn(ReflectionProperty $rp) => (
         new TFindByFNParamsStructure(
-          $rp->getType()->getName(),
+          $columnsTypes->Copy()->Find(
+            fn(Properties $properties) => (
+              $properties->name === $rp->getName()
+            )
+          )->First()->properties->First()->columnType,
           $rp->getName()
         )
       )

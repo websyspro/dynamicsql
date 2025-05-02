@@ -20,7 +20,7 @@ use Websyspro\DynamicSql\TFindByFN;
 
 require_once "./vendor/autoload.php";
 
-class Documet
+class Document
 {
   public int $Id;
   public string $Description;

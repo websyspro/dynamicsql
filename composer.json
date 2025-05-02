@@ -15,6 +15,7 @@
       }
   ],
   "require": {
-    "websyspro/common": "dev-main"
+    "websyspro/common": "dev-main",
+    "websyspro/entity": "dev-main"
   }
 }

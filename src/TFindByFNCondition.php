@@ -4,6 +4,7 @@ namespace Websyspro\DynamicSql;
 
 use Websyspro\Commons\TList;
 use Websyspro\Commons\TUtil;
+use Websyspro\Entity\Enums\ColumnType;
 
 class TFindByFNCondition
 {
@@ -96,12 +97,13 @@ class TFindByFNCondition
   
   public function setValueMatch(
     string $value,
-    string $type
+    ColumnType $columnType
   ): mixed {
-    return match($type){
-      "float" => $this->setValueToDecimal($value),
-      "string" => $this->setValueToText($value),
-      "datetime" => $this->setValueToDatetime($value),
+    return match($columnType){
+      ColumnType::Decimal => $columnType->Encode($value),
+      ColumnType::Text => $columnType->Encode($value),
+      ColumnType::Datetime => $columnType->Encode($value),
+      ColumnType::Datetime => $columnType->Encode($value),
         default => $value
     };
   }
@@ -138,8 +140,8 @@ class TFindByFNCondition
 
       $this->value = TUtil::JoinWithComma(
         $valueParse->Mapper(fn(string $value) => (
-          $this->setValueMatch($value, $ps->type
-        )))->All(), "(%s)"
+          $ps->columnType->Encode($value)
+        ))->All(), "(%s)"
       );
 
       $this->compare = (
@@ -147,9 +149,7 @@ class TFindByFNCondition
           ? "Not In" : "In"
       );
     } else {
-      $this->value = $this->setValueMatch(
-        $this->value, $ps->type
-      );
+      $this->value = $ps->columnType->Encode($this->value);
     }
 
     return $this;
@@ -202,7 +202,7 @@ class TFindByFNCondition
         );
 
         if($paramStructure->Count() !== 0){
-          if($paramStructure->First()->type === "string"){
+          if($paramStructure->First()->type === ColumnType::Text){
             if(preg_match("/%/", $this->value) === 1){
               $this->compare = preg_replace(
                 [ "/(!==)/", "/(===)/" ],

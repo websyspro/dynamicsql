@@ -2,14 +2,12 @@
 
 namespace Websyspro\DynamicSql;
 
+use Websyspro\Entity\Enums\ColumnType;
+
 class TFindByFNParamsStructure
 {
   public function __construct(
-    public string $type,
+    public ColumnType $columnType,
     public string $column
-  ){
-    $this->type = mb_strtolower(
-      $this->type
-    );
-  }
+  ){}
 }

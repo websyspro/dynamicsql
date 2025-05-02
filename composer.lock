@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "35b882ad15ec0b1807856d1c7f06196c",
+    "content-hash": "314b7570d89e7db9d91f2d7efa61b4af",
     "packages": [
         {
             "name": "websyspro/common",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/websyspro/common.git",
-                "reference": "4c237d73ebdcd2c4cd29ef2f788e510935265f4b"
+                "reference": "2d91189fc3f32b8af572b4c8739150ade1dedf83"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/websyspro/common/zipball/4c237d73ebdcd2c4cd29ef2f788e510935265f4b",
-                "reference": "4c237d73ebdcd2c4cd29ef2f788e510935265f4b",
+                "url": "https://api.github.com/repos/websyspro/common/zipball/2d91189fc3f32b8af572b4c8739150ade1dedf83",
+                "reference": "2d91189fc3f32b8af572b4c8739150ade1dedf83",
                 "shasum": ""
             },
             "default-branch": true,
@@ -42,14 +42,56 @@
                 "issues": "https://github.com/websyspro/common/issues",
                 "source": "https://github.com/websyspro/common/tree/main"
             },
-            "time": "2025-05-01T21:28:02+00:00"
+            "time": "2025-05-02T14:12:19+00:00"
+        },
+        {
+            "name": "websyspro/entity",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/websyspro/entity.git",
+                "reference": "6f4010639d715711378834baa3b68e2d30ec5b70"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/websyspro/entity/zipball/6f4010639d715711378834baa3b68e2d30ec5b70",
+                "reference": "6f4010639d715711378834baa3b68e2d30ec5b70",
+                "shasum": ""
+            },
+            "require": {
+                "websyspro/common": "dev-main"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Websyspro\\Entity\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "websyspro",
+                    "email": "websyspro.services@gmail.com"
+                }
+            ],
+            "description": "Set of features in PHP for creating entitys for database",
+            "support": {
+                "issues": "https://github.com/websyspro/entity/issues",
+                "source": "https://github.com/websyspro/entity/tree/main"
+            },
+            "time": "2025-05-02T19:47:47+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "websyspro/common": 20
+        "websyspro/common": 20,
+        "websyspro/entity": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
