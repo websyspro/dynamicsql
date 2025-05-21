@@ -144,19 +144,14 @@ class TFindByFNCondition
 
   public function getEntityByValue(
   ): string | null {
-    if(preg_match("/^\\$\w*\->\w*/", $this->value) === 0){
-      return null;
-    }
-
-    return preg_replace(["/(^\\$)|(\->\w*)/" ], [ "" ], $this->value);
+    [ $entity ] = TUtil::SplitWithPoint($this->value);
+    return $entity;
   } 
 
   public function setEntityByValue(
     TFindByFNParams $params
   ): self {
-    [$entity, $column] = TUtil::SplitWithPoint(
-      preg_replace([ "/^\\$/", "/\->/" ], [ "", "." ], $this->value)
-    );
+    [$entity, $column] = TUtil::SplitWithPoint($this->value);
 
     if($entity === $params->name){
       $hasProperts = $params->propertys->Copy()->Find(
@@ -164,7 +159,7 @@ class TFindByFNCondition
       );
 
       if($hasProperts->Count() !== 0){
-        $this->value = "{$params->entity}.{$column}";
+        $this->value = "{$params->table}.{$column}";
       }
     }
 
@@ -189,7 +184,7 @@ class TFindByFNCondition
         );
 
         if($paramStructure->Count() !== 0){
-          if($paramStructure->First()->type === ColumnType::Text){
+          if($paramStructure->First()->columnType === ColumnType::Text){
             if(preg_match("/%/", $this->value) === 1){
               $this->compare = preg_replace(
                 [ "/(!==)/", "/(===)/" ],
@@ -209,39 +204,60 @@ class TFindByFNCondition
     return $this;
   }
 
+  public function getStaticParse(
+    array $array,
+    string $prefix = ""
+  ): array {
+    $result = [];
+
+    foreach ($array as $key => $value) {
+        $newKey = $prefix === "" ? $key : "{$prefix}.{$key}";
+
+        if (is_array($value) || is_object($value)) {
+            $flattened = $this->getStaticParse($value, $newKey);
+            foreach ($flattened as $fKey => $fValue) {
+                $result[$fKey] = $fValue;
+            }
+        } else {
+            $result[$newKey] = $value;
+        }
+    }
+
+    return $result;
+
+    return $staticsNew;
+  }
+
   public function setStatic(
     TList $statics
   ): self {
-    if( preg_match( "/^\\$/", $this->value ) === 0){
+    if(preg_match('/\{\$(.*?)\}/', $this->value)){
+      $this->value = preg_replace(["/\{\\$/", "/\}/"], ["$", ""], $this->value);
+    }
+
+    if(preg_match("/\\$/", $this->value) === 0){
       return $this;
     }
 
-    $parseValue = new TList(
-      explode( ".", preg_replace(
-        [ "/(^\\$)|(\"\])/", "/(\[\")|(\->)/" ],
-        [ "", "." ], $this->value
-      ))
+    $this->value = preg_replace(
+      ["/(^\\$)|(\"\])/", 
+       "/(\[\")|(\->)/",
+       "/\\$/"], ["", ".", ""], $this->value
     );
 
-    $staticName = $parseValue->First();
-    $staticNiveis = $parseValue->Slice(1);
-
-    $staticFind = $statics->Copy()->FindByKey(
-      fn( string $key ) => $key === $staticName
+    $statics = new TList(
+      $this->getStaticParse(
+        $statics->All()
+      )
     );
 
-    if($staticFind->Count() !== 0){
-      if($staticNiveis->Count() !== 0){
-        $staticNiveis->Mapper(fn( string $nvl) => (
-          $staticFind->Mapper(fn( mixed $val) => (
-            is_array($val) ? $val[$nvl] : $val->{$nvl}
-          ))
-        ));
-      }
-
-      $this->value = is_array($staticFind->First()) 
-        ? TUtil::JoinWithComma($staticFind->First(), "[%s]") : $staticFind->First();
-    }
+    $statics->ForEach(
+      fn(string $value, string $key) => (
+        $this->value = preg_replace(
+          "/$key/", $value, $this->value
+        )
+      )
+    );
 
     return $this;
   }

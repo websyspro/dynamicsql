@@ -2,6 +2,9 @@
 
 namespace Websyspro\DynamicSql;
 
+use Websyspro\Commons\TList;
+use Websyspro\DynamicSql\Interfaces\IConditions;
+
 class TFindByFN
 {
   public TFindByStructure $structure;
@@ -15,8 +18,11 @@ class TFindByFN
   }
 
   public function getConditions(
-  ): string {
-    return $this->structure->getConditions();
+  ): IConditions {
+    return new IConditions(
+      new TList($this->structure->getTables()),
+      new TList([$this->structure->getConditions()])
+    );
   }
 
   private function define(
@@ -36,7 +42,7 @@ class TFindByFN
           fn(TFindByFNCondition | TFindByFNCompare $findByFN) => (
             $findByFN instanceof TFindByFNCompare ? $findByFN : (
               $findByFN->entity === $params->name 
-                ? $findByFN->setEntity($params->entity) 
+                ? $findByFN->setEntity($params->table) 
                 : $findByFN 
             )
           )
@@ -63,7 +69,7 @@ class TFindByFN
         $this->structure->finds->Mapper(
           fn(TFindByFNCondition | TFindByFNCompare $findByFN) => (
             $findByFN instanceof TFindByFNCompare ? $findByFN : (
-              $findByFN->entity === $params->entity 
+              $findByFN->entity === $params->table
                 ? $findByFN->setValue(
                     $params->propertys->Copy()->Find(
                       fn(TFindByFNParamsStructure $ps) => (
@@ -87,7 +93,7 @@ class TFindByFN
           fn(TFindByFNCondition | TFindByFNCompare $findByFN) => (
             $findByFN instanceof TFindByFNCompare ? $findByFN : (
               $findByFN->getEntityByValue() === $params->name 
-                ? $findByFN->setEntityByValue( $params ) 
+                ? $findByFN->setEntityByValue($params) 
                 : $findByFN
             )
           )

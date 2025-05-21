@@ -11,6 +11,7 @@ use Websyspro\Entity\Shareds\Properties;
 class TFindByFNParams
 {
   public TList $propertys;
+  public string $table;
 
   public function __construct(
     public string $entity,
@@ -35,8 +36,14 @@ class TFindByFNParams
       )
     );
 
+    $structureTable = (
+      new StructureTable(
+        $this->entity
+      )
+    );
+
     $columnsTypes = (
-      new StructureTable($this->entity)
+      $structureTable
     )->Columns()->List();
 
     $this->propertys->Mapper(
@@ -46,10 +53,12 @@ class TFindByFNParams
             fn(Properties $properties) => (
               $properties->name === $rp->getName()
             )
-          )->First()->properties->First()->columnType,
+          )->First()->items->First()->columnType,
           $rp->getName()
         )
       )
     );
+
+    $this->table = $structureTable->table;
   }
 }

@@ -4,18 +4,22 @@
   "license": "MIT",
   "type": "library",
   "autoload": {
-      "psr-4": {
-          "Websyspro\\DynamicSql\\": "src/"
-      }
+    "psr-4": {
+      "Websyspro\\DynamicSql\\": "src/"
+    }
   },
   "authors": [
-      {
-          "name": "websyspro",
-          "email": "websyspro.services@gmail.com"
-      }
+    {
+      "name": "websyspro",
+      "email": "websyspro.services@gmail.com"
+    }
   ],
-  "require": {
+  "scripts": {
+    "watch": "powershell -ExecutionPolicy Bypass -File ./vendor/websyspro/watch/src/watch.ps1"
+  },
+  "require-dev": {
     "websyspro/common": "dev-main",
-    "websyspro/entity": "dev-main"
+    "websyspro/entity": "dev-main",
+    "websyspro/watch": "dev-main"
   }
 }

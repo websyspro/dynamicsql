@@ -4,20 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "314b7570d89e7db9d91f2d7efa61b4af",
-    "packages": [
+    "content-hash": "33aabb3f755214d930fb81ff825817e7",
+    "packages": [],
+    "packages-dev": [
         {
             "name": "websyspro/common",
             "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/websyspro/common.git",
-                "reference": "2d91189fc3f32b8af572b4c8739150ade1dedf83"
+                "reference": "a4f5846324a129df0ee33cd75d171a4459090ddc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/websyspro/common/zipball/2d91189fc3f32b8af572b4c8739150ade1dedf83",
-                "reference": "2d91189fc3f32b8af572b4c8739150ade1dedf83",
+                "url": "https://api.github.com/repos/websyspro/common/zipball/a4f5846324a129df0ee33cd75d171a4459090ddc",
+                "reference": "a4f5846324a129df0ee33cd75d171a4459090ddc",
                 "shasum": ""
             },
             "default-branch": true,
@@ -42,7 +43,7 @@
                 "issues": "https://github.com/websyspro/common/issues",
                 "source": "https://github.com/websyspro/common/tree/main"
             },
-            "time": "2025-05-02T14:12:19+00:00"
+            "time": "2025-05-20T01:21:09+00:00"
         },
         {
             "name": "websyspro/entity",
@@ -50,16 +51,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/websyspro/entity.git",
-                "reference": "fc3a86a0c924d6449d7bc4d598df8ebb35630788"
+                "reference": "3e2849ac0c7d6e67973e891b1187bd59fa115c8e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/websyspro/entity/zipball/fc3a86a0c924d6449d7bc4d598df8ebb35630788",
-                "reference": "fc3a86a0c924d6449d7bc4d598df8ebb35630788",
+                "url": "https://api.github.com/repos/websyspro/entity/zipball/3e2849ac0c7d6e67973e891b1187bd59fa115c8e",
+                "reference": "3e2849ac0c7d6e67973e891b1187bd59fa115c8e",
                 "shasum": ""
             },
-            "require": {
-                "websyspro/common": "dev-main"
+            "require-dev": {
+                "websyspro/common": "dev-main",
+                "websyspro/database": "dev-main",
+                "websyspro/dynamicsql": "dev-main",
+                "websyspro/watch": "dev-main"
             },
             "default-branch": true,
             "type": "library",
@@ -83,15 +87,53 @@
                 "issues": "https://github.com/websyspro/entity/issues",
                 "source": "https://github.com/websyspro/entity/tree/main"
             },
-            "time": "2025-05-02T20:30:31+00:00"
+            "time": "2025-05-21T01:50:11+00:00"
+        },
+        {
+            "name": "websyspro/watch",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/websyspro/watch.git",
+                "reference": "b8b3eb1d92c283e42a78f5422f206d027ca7be2a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/websyspro/watch/zipball/b8b3eb1d92c283e42a78f5422f206d027ca7be2a",
+                "reference": "b8b3eb1d92c283e42a78f5422f206d027ca7be2a",
+                "shasum": ""
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Websyspro\\Watch\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "websyspro",
+                    "email": "websyspro.services@gmail.com"
+                }
+            ],
+            "description": "File watcher for PHP projects using PowerShell",
+            "support": {
+                "issues": "https://github.com/websyspro/watch/issues",
+                "source": "https://github.com/websyspro/watch/tree/main"
+            },
+            "time": "2025-05-18T13:55:42+00:00"
         }
     ],
-    "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
         "websyspro/common": 20,
-        "websyspro/entity": 20
+        "websyspro/entity": 20,
+        "websyspro/watch": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

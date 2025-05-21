@@ -15,6 +15,11 @@ class TFindByStructure
     public string $body
   ){}
 
+  public function getTables(
+  ): array {
+    return $this->params->All();
+  }
+
   public function getConditions(
   ): string {
     return $this->condition;
