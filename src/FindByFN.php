@@ -20,7 +20,9 @@ class FindByFN extends ArrowFN
     $this->ParseBodyStatics();
     $this->ParseBodyParameters();
     $this->ParseBodyConditions();
-    $this->ParseSplit();
+    $this->ParseBodyConditionsSplit();
+    $this->ParseBodyEntityFields();
+    $this->ParseBodyValuesFields();
     $this->ParseClear();
   }
 
@@ -91,7 +93,7 @@ class FindByFN extends ArrowFN
     ));
   }
 
-  public function ParseSplit(
+  public function ParseBodyConditionsSplit(
   ): void {
     $this->body = Collection::Create(
       preg_split("/(\s?And\s?)|(\s?Or\s?)/", $this->body->First(), -1, (
@@ -102,6 +104,32 @@ class FindByFN extends ArrowFN
     $this->body->Mapper(fn(string $conditions, int $order) => (
       $order % 2 === 1 ? trim($conditions) : new ItemCondition($conditions)
     ));
+  }
+
+  public function ParseBodyEntityFields(
+  ): void {
+    $this->bodyParameters->ForEach(
+      function(ItemParameter $itemParameter){
+        $this->body->ForEach(
+          fn(ItemCondition | string $itemCondition) => (
+            is_string($itemCondition) === false
+              ? $itemCondition->entityField($itemParameter)
+              : []
+          )
+        );
+      }
+    );
+  }
+
+  public function ParseBodyValuesFields(
+  ): void {
+    $this->body->ForEach(
+      fn(ItemCondition | string $itemCondition) => (
+        is_string($itemCondition) === false 
+          ? $itemCondition->valuesFields($this->bodyStatics)
+          : []
+      )
+    );
   }
 
   public function ParseClear(
