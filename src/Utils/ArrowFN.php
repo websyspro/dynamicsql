@@ -67,7 +67,7 @@ class ArrowFN
 
   public static function Parse(
     callable $fn
-  ): ArrowFN {
+  ): static {
     return new static($fn);
   } 
 }

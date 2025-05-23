@@ -43,7 +43,7 @@ class ArrowFNFill
 
   public function defineDoubleArrow(
   ): void {
-    $this->tokens->Find(
+    $this->tokens->Where(
       function(TokenString | Token $token){
         if($token->token === "T_DOUBLE_ARROW"){
           $this->isDoubleArrow = true;
@@ -59,7 +59,7 @@ class ArrowFNFill
 
   public function defineEndBody(
   ): void {
-    $this->tokens->Find(
+    $this->tokens->Where(
       function(TokenString | Token $token){
         if($token->value === "(") $this->parentheses++;
         if($token->value === "[") $this->brackets++;

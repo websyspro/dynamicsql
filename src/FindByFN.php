@@ -164,7 +164,7 @@ class FindByFN extends ArrowFN
     );
   }
 
-  public function Details(
+  public function Where(
   ): Details {
     return new Details(
       $this->bodyParameters->Mapper(

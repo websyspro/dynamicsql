@@ -29,7 +29,7 @@ class ItemField
 
   public function ParseType(
   ): void {
-    $this->columnType = $this->structureTable->Columns()->List()->Find(
+    $this->columnType = $this->structureTable->Columns()->List()->Where(
       fn(Properties $properties) => $properties->name === $this->name
     )->First()->items->First()->columnType;
   }
