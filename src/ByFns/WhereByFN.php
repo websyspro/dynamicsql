@@ -35,6 +35,7 @@ class WhereByFN extends ArrowFN
 
   public function ParseBodyStatics(
   ): void {
+    /* PARSE: Vars Statics */
     $this->bodyStatics = Collection::Create(
       $this->ParseBodyStaticsUnion(
         Reflect::FN(
@@ -88,6 +89,7 @@ class WhereByFN extends ArrowFN
 
   public function ParseBodyConditions(
   ): void {
+    /* PARSE: &&/and por And, ||/or por Or  */
     $this->body->Mapper(fn(string $body) => (
       preg_replace([
         "/(&&)|(and)/i",
@@ -95,6 +97,7 @@ class WhereByFN extends ArrowFN
       ], ["And", "Or"], $body)
     ));
 
+    /* PARSE: ajustar espaços antes e depois */
     $this->body->Mapper(fn(string $body) => (
       preg_replace([
         "/\s{1,}!=\s{1,}/",
@@ -106,14 +109,23 @@ class WhereByFN extends ArrowFN
 
   public function ParseBodyConditionsSplit(
   ): void {
+    /* PARSE: Grupo de conditions por And or Or */
     $this->body = Collection::Create(
       preg_split("/(\s?And\s?)|(\s?Or\s?)/", $this->body->First(), -1, (
         PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY
       ))
     );
+
+    /* Parse: !Entity.field para Entity.field = false */
+    $this->body->Mapper(fn(string $condition) => (
+      preg_match("/^!/", $condition) === 0 ? $condition : sprintf(
+        "%s === false", preg_replace("/^!/", "", $condition)
+      )
+    ));
     
-    $this->body->Mapper(fn(string $conditions, int $order) => (
-      $order % 2 === 1 ? trim($conditions) : new ItemCondition($conditions)
+    /* PARSE: Mapper para transformar ItemCondition */
+    $this->body->Mapper(fn(string $condition, int $order) => (
+      $order % 2 === 1 ? trim($condition) : new ItemCondition($condition)
     ));
   }
 
@@ -131,13 +143,18 @@ class WhereByFN extends ArrowFN
             sprintf("\${$itemParameter->name}->{$columnType->name} === %s", (
               $columnType->name === "Actived" ? "true" : "false"
             ))
-          ))->ForEach(fn(string $itemCondition) => (
-            $this->body->Add("And")->Add(
-              new ItemCondition(
-                $itemCondition
-              )
-            )
-          ));
+          ))->ForEach(function(string $itemCondition){
+            $item = preg_replace("/\s{1,}={2,}.*/", "", $itemCondition);
+            
+            $body = $this->body->Copy()->Where(fn(ItemCondition | string $itemCondition) => (
+              is_string($itemCondition) === false && ($itemCondition->equalA === $item || $itemCondition->equalB === $item)
+            ));
+
+            /* Adicionar somente quando o Entity.Field não existir */
+            return $body->Count() === 1 ? $this->body : $this->body->Add("And")->Add(
+              new ItemCondition( $itemCondition )
+            );
+          });
         }
       }
     );

@@ -173,7 +173,22 @@ class ItemCondition
     }
 
     return $equalsLike;
-  }  
+  }
+
+  public function compareEqualsFieldNullabled(
+    string | ItemField | ItemValue $equals,
+    string $equalsLike    
+  ): string {
+    if($equals instanceof ItemValue){
+      if(preg_match("/null/i", $equals->valueParse)){
+        $equalsLike = preg_replace(
+          ["/!=/", "/=/"], ["Is Not", "Is"], $equalsLike
+        );
+      }
+    }
+
+    return $equalsLike;
+  }
 
   public function compareEqualsField(
   ): string {
@@ -185,6 +200,8 @@ class ItemCondition
     $equals = $this->compareEqualsFieldLiked($this->equalB, $equals);
     $equals = $this->compareEqualsFieldListed($this->equalA, $equals);
     $equals = $this->compareEqualsFieldListed($this->equalB, $equals);
+    $equals = $this->compareEqualsFieldNullabled($this->equalA, $equals);
+    $equals = $this->compareEqualsFieldNullabled($this->equalB, $equals);
 
     return $equals;
   }

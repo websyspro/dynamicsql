@@ -30,17 +30,22 @@ class ItemValue
         $this->valueParse = $this->value;
       }
     } else {
+      /* PARSE: "Text"/'Text' para Text */
       $this->valueParse = preg_replace( "/(^\")|(^\')|(\"$)|(\'$)/", "", $this->value );
+      
+      /* PARSE: null/NULL para Null */
+      if(preg_match("/null/i", $this->valueParse) === 1){
+        $this->valueParse = "Null";
+      }
     }
   }
 
   public function ParseValueHierarchy(
   ): void {
     if(preg_match("/\\$/", $this->value)){
+      /* PARSE: $Entity->Field para Entity.Field */
       $this->valueParse = preg_replace(
-        ["/(^\\$)|(\"\])/", 
-        "/(\[\")|(\->)/",
-        "/\\$/"], ["", ".", ""], $this->valueParse
+        [ "/(^\\$)|(\"\])/", "/(\[\")|(\->)/", "/\\$/" ], [ "", ".", "" ], $this->valueParse
       );
     }
   }
