@@ -50,12 +50,12 @@ class ArrowFN
   public function ParseFill(
   ): void {
     $this->body = Collection::Create([
-      preg_replace(
-        [ "/(^\\()|(\\)$)|(^\\[)|(\\]$)/" ], [ "" ], (
+      preg_replace( "/^\((.*?)\)$/", "$1", 
+        preg_replace( "/^\[(.*)\]$/", "$1", (
           ArrowFNFill::parse(
             ArrowFN::FullBody()
           )->get()
-        )
+        ))
       )
     ]);
   }  

@@ -1,11 +1,12 @@
 <?php
 
-namespace Websyspro\DynamicSql;
+namespace Websyspro\DynamicSql\Shareds;
 
 use ReflectionParameter;
 use Websyspro\Commons\Collection;
 use Websyspro\Commons\Reflect;
 use Websyspro\Commons\Util;
+use Websyspro\DynamicSql\Interfaces\ColumnsProps;
 use Websyspro\DynamicSql\Shareds\ItemParameter;
 use Websyspro\DynamicSql\Utils\ArrowFN;
 
@@ -62,14 +63,16 @@ extends ArrowFN
     $this->parameters->ForEach(
       function(ItemParameter $itemParameter){
         $this->columns->Mapper(fn(string $column) => (
-          preg_replace("/$itemParameter->name/", $itemParameter->structureTable->table, $column)
+          preg_replace("/^$itemParameter->name./", "{$itemParameter->structureTable->table}.", $column)
         ));
       }
     );
   }
 
   public function Columns(
-  ): Collection {
-    return $this->columns;
+  ): ColumnsProps {
+    return new ColumnsProps(
+      $this->columns
+    );
   }
 }

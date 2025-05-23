@@ -1,13 +1,13 @@
 <?php
 
-namespace Websyspro\DynamicSql\Shareds;
+namespace Websyspro\DynamicSql\Interfaces;
 
 use Websyspro\Commons\Collection;
 
-class Details
+class WhereProps
 {
   public function __construct(
     public Collection $table,
     public Collection $conditions
-  ){}
+  ){}  
 }

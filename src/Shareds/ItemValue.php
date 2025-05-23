@@ -21,22 +21,16 @@ class ItemValue
   ): void {
     if(preg_match("/\\$/", $this->value)){
       if( preg_match("/(^\")|(^\')|(\"$)|(\'$)/", $this->value )){
-        $this->value = preg_replace(
-          "/(^\")|(^\')|(\"$)|(\'$)/", "", $this->value
-        );
+        $this->value = preg_replace( "/(^\")|(^\')|(\"$)|(\'$)/", "", $this->value );
       }
 
       if( preg_match("/(\\{\\$)|(\\})/", $this->value )){
-        $this->valueParse = preg_replace(
-          "/({\\$)|(})/", "", $this->value
-        );
+        $this->valueParse = preg_replace( "/({\\$)|(})/", "", $this->value );
       } else {
         $this->valueParse = $this->value;
       }
     } else {
-      $this->valueParse = preg_replace(
-        "/(^\")|(^\')|(\"$)|(\'$)/", "", $this->value
-      );
+      $this->valueParse = preg_replace( "/(^\")|(^\')|(\"$)|(\'$)/", "", $this->value );
     }
   }
 

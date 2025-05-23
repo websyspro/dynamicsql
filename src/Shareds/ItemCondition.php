@@ -78,12 +78,15 @@ class ItemCondition
     Collection $statics
   ): void {
     if(is_string($this->equalA)){
-      $this->equalA = new ItemValue($this->equalA, $statics);
+      $this->equalA = new ItemValue(
+        $this->equalA, $statics
+      );
     }
 
-
     if(is_string($this->equalB)){
-      $this->equalB = new ItemValue($this->equalB, $statics);
+      $this->equalB = new ItemValue(
+        $this->equalB, $statics
+      );
     }
   }
 
@@ -146,10 +149,10 @@ class ItemCondition
     string $equalsLike
   ): string {
     if($equals instanceof ItemValue){
-      if(preg_match("/%/", $equals->value)){
+      if(preg_match("/%/", $equals->valueParse)){
         $equalsLike = preg_replace(
           [ "/!=/", "/=/" ],
-          [ "not like", "like" ], $equalsLike
+          [ "Not Like", "Like" ], $equalsLike
         );
       }
     }
@@ -162,9 +165,9 @@ class ItemCondition
     string $equalsLike
   ): string {
     if($equals instanceof ItemValue){
-      if(preg_match("/^\[.*\]$/", $equals->value)){
+      if(preg_match("/^\(.*\)$/", $equals->valueParse)){
         $equalsLike = preg_replace(
-          ["/!=/", "/=/"], ["not in", "in"], $equalsLike
+          ["/!=/", "/=/"], ["Not In", "In"], $equalsLike
         );
       }
     }

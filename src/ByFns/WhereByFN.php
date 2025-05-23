@@ -1,18 +1,18 @@
 <?php
 
-namespace Websyspro\DynamicSql;
+namespace Websyspro\DynamicSql\ByFns;
 
 use ReflectionParameter;
 use Websyspro\Commons\Collection;
 use Websyspro\Commons\Reflect;
-use Websyspro\DynamicSql\Shareds\Details;
+use Websyspro\DynamicSql\Interfaces\WhereProps;
 use Websyspro\DynamicSql\Shareds\ItemCondition;
 use Websyspro\DynamicSql\Shareds\ItemParameter;
 use Websyspro\DynamicSql\Utils\ArrowFN;
 use Websyspro\Entity\Core\StructureTableColumns;
 use Websyspro\Entity\Shareds\ColumnType;
 
-class FindByFN extends ArrowFN
+class WhereByFN extends ArrowFN
 {
   public Collection $bodyStatics;
   public Collection $bodyParameters;
@@ -48,22 +48,26 @@ class FindByFN extends ArrowFN
     array $array,
     string $prefix = ""
   ): array {
-    $result = [];
+  $result = [];
 
-    foreach ($array as $key => $value) {
-        $newKey = $prefix === "" ? $key : "{$prefix}.{$key}";
+  foreach ($array as $key => $value) {
+    $newKey = $prefix === "" ? $key : "{$prefix}.{$key}";
 
-        if (is_array($value) || is_object($value)) {
-            $flattened = $this->ParseBodyStaticsUnion($value, $newKey);
-            foreach ($flattened as $fKey => $fValue) {
-                $result[$fKey] = $fValue;
-            }
-        } else {
-            $result[$newKey] = $value;
+    if (is_array($value) || is_object($value)) {
+      if (is_array($value) && array_keys($value) === range(0, count($value) - 1)) {
+        $result[$newKey] = json_encode($value);
+      } else {
+        $flattened = $this->ParseBodyStaticsUnion((array)$value, $newKey);
+        foreach ($flattened as $fKey => $fValue) {
+            $result[$fKey] = $fValue;
         }
+      }
+    } else {
+      $result[$newKey] = $value;
     }
+  }
 
-    return $result;
+  return $result;
   }  
 
   public function ParseBodyParameters(
@@ -128,7 +132,7 @@ class FindByFN extends ArrowFN
               $columnType->name === "Actived" ? "true" : "false"
             ))
           ))->ForEach(fn(string $itemCondition) => (
-            $this->body->Add("&&")->Add(
+            $this->body->Add("And")->Add(
               new ItemCondition(
                 $itemCondition
               )
@@ -194,11 +198,19 @@ class FindByFN extends ArrowFN
   }
 
   public function Where(
-  ): Details {
-    return new Details(
+  ): WhereProps {
+    return new WhereProps(
       $this->bodyParameters->Mapper(
         fn(ItemParameter $itemParameter) => (
           $itemParameter->structureTable->table
+        )
+      )->Where(
+        fn(string $entity) => (
+          $this->bodyScripts->Copy()->Where(
+            fn(string $script) => (
+              preg_match("/^$entity\./", $script) === 1
+            )
+          )->Count() !== 0
         )
       ), $this->bodyScripts
     );
