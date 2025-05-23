@@ -3,8 +3,5 @@
 namespace Websyspro\DynamicSql;
 
 class GroupByFN
-{
-  public function __construct(
-    public mixed $fn
-  ){}
-}
+extends ColumnsByFN
+{}

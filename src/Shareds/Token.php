@@ -1,6 +1,6 @@
 <?php
 
-namespace Websyspro\DynamicSql\Interfaces;
+namespace Websyspro\DynamicSql\Shareds;
 
 class Token
 {

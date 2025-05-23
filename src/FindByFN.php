@@ -5,10 +5,12 @@ namespace Websyspro\DynamicSql;
 use ReflectionParameter;
 use Websyspro\Commons\Collection;
 use Websyspro\Commons\Reflect;
-use Websyspro\DynamicSql\Interfaces\Details;
-use Websyspro\DynamicSql\Interfaces\ItemCondition;
-use Websyspro\DynamicSql\Interfaces\ItemParameter;
+use Websyspro\DynamicSql\Shareds\Details;
+use Websyspro\DynamicSql\Shareds\ItemCondition;
+use Websyspro\DynamicSql\Shareds\ItemParameter;
 use Websyspro\DynamicSql\Utils\ArrowFN;
+use Websyspro\Entity\Core\StructureTableColumns;
+use Websyspro\Entity\Shareds\ColumnType;
 
 class FindByFN extends ArrowFN
 {
@@ -23,6 +25,7 @@ class FindByFN extends ArrowFN
     $this->ParseBodyParameters();
     $this->ParseBodyConditions();
     $this->ParseBodyConditionsSplit();
+    $this->ParseBodyAddSoftDeleteds();
     $this->ParseBodyEntityFields();
     $this->ParseBodyValuesFields();
     $this->ParseBodyValuesEncodes();
@@ -108,6 +111,32 @@ class FindByFN extends ArrowFN
     $this->body->Mapper(fn(string $conditions, int $order) => (
       $order % 2 === 1 ? trim($conditions) : new ItemCondition($conditions)
     ));
+  }
+
+  public function ParseBodyAddSoftDeleteds(
+  ): void {
+    $this->bodyParameters->ForEach(
+      function(ItemParameter $itemParameter){
+        $structureTableColumns = $itemParameter->structureTable->Columns();
+        if($structureTableColumns instanceof StructureTableColumns){
+          $whereSoftDeleted = $structureTableColumns->ListType()->Where(
+            fn(ColumnType $columnType) => in_array($columnType->name, ["Actived", "Deleted"])
+          );
+
+          $whereSoftDeleted->Mapper(fn(ColumnType $columnType) => (
+            sprintf("\${$itemParameter->name}->{$columnType->name} === %s", (
+              $columnType->name === "Actived" ? "true" : "false"
+            ))
+          ))->ForEach(fn(string $itemCondition) => (
+            $this->body->Add("&&")->Add(
+              new ItemCondition(
+                $itemCondition
+              )
+            )
+          ));
+        }
+      }
+    );
   }
 
   public function ParseBodyEntityFields(

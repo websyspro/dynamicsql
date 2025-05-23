@@ -1,6 +1,6 @@
 <?php
 
-namespace Websyspro\DynamicSql\Interfaces;
+namespace Websyspro\DynamicSql\Shareds;
 
 use Websyspro\Entity\Core\StructureTable;
 use Websyspro\Entity\Enums\ColumnType;

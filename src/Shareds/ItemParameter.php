@@ -1,6 +1,6 @@
 <?php
 
-namespace Websyspro\DynamicSql\Interfaces;
+namespace Websyspro\DynamicSql\Shareds;
 
 use Websyspro\Commons\Collection;
 use Websyspro\Entity\Core\StructureTable;

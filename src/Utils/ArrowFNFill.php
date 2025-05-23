@@ -3,8 +3,8 @@
 namespace Websyspro\DynamicSql\Utils;
 
 use Websyspro\Commons\Collection;
-use Websyspro\DynamicSql\Interfaces\Token;
-use Websyspro\DynamicSql\Interfaces\TokenString;
+use Websyspro\DynamicSql\Shareds\Token;
+use Websyspro\DynamicSql\Shareds\TokenString;
 
 class ArrowFNFill
 {

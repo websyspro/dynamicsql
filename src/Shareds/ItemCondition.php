@@ -1,8 +1,7 @@
 <?php
 
-namespace Websyspro\DynamicSql\Interfaces;
+namespace Websyspro\DynamicSql\Shareds;
 
-use Stringable;
 use Websyspro\Commons\Collection;
 use Websyspro\Commons\Util;
 use Websyspro\Entity\Shareds\ColumnType;
