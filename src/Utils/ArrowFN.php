@@ -34,11 +34,16 @@ class ArrowFN
             $fn->getStartLine(), 1
           )
       )      
+    )->Mapper(
+      fn(string $row) => (
+        preg_replace("/\/\/.*$/", "", $row)
+      )
     );
 
     return preg_replace(
-      [ "/(\r?\n)/", "/\s{2,}/", "/fn\s*\(/", "/\\[\s*/", "/\s*\\]/", "/\\(\s*/", "/\s*\\)/" ],
-      [ "", " ", "fn(", "[", "]", "(", ")" ], ($fnRows->JoinNotSpace())
+      [ "/(\r?\n)/", "/\s{2,}/", "/fn\s*\(/", "/\\[\s*/", 
+        "/\s*\\]/", "/\\(\s*/", "/\s*\\)/", "/\/\*.*?\*\//s" ],
+      [ "", " ", "fn(", "[", "]", "(", ")", "" ], ($fnRows->JoinNotSpace())
     );    
   }
 

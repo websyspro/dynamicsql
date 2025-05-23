@@ -19,28 +19,46 @@ class ItemValue
 
   public function ParseValueBase(
   ): void {
-    if( preg_match("/(\\{\\$)|(\\})/", $this->value )){
-      $this->valueParse = preg_replace("/({\\$)|(})/", "", $this->value);
+    if(preg_match("/\\$/", $this->value)){
+      if( preg_match("/(^\")|(^\')|(\"$)|(\'$)/", $this->value )){
+        $this->value = preg_replace(
+          "/(^\")|(^\')|(\"$)|(\'$)/", "", $this->value
+        );
+      }
+
+      if( preg_match("/(\\{\\$)|(\\})/", $this->value )){
+        $this->valueParse = preg_replace(
+          "/({\\$)|(})/", "", $this->value
+        );
+      } else {
+        $this->valueParse = $this->value;
+      }
     } else {
-      $this->valueParse = $this->value;
+      $this->valueParse = preg_replace(
+        "/(^\")|(^\')|(\"$)|(\'$)/", "", $this->value
+      );
     }
   }
 
   public function ParseValueHierarchy(
   ): void {
-    $this->valueParse = preg_replace(
-      ["/(^\\$)|(\"\])/", 
-       "/(\[\")|(\->)/",
-       "/\\$/"], ["", ".", ""], $this->valueParse
-    );
+    if(preg_match("/\\$/", $this->value)){
+      $this->valueParse = preg_replace(
+        ["/(^\\$)|(\"\])/", 
+        "/(\[\")|(\->)/",
+        "/\\$/"], ["", ".", ""], $this->valueParse
+      );
+    }
   }
 
   public function ParseValueOffered(
   ): void {
-    $this->statics->ForEach(
-      function(mixed $offeredValue, string $offeredKey){
-        $this->valueParse = preg_replace("/$offeredKey/", $offeredValue, $this->valueParse);
-      }
-    );
+    if(preg_match("/\\$/", $this->value)){
+      $this->statics->ForEach(
+        function(mixed $offeredValue, string $offeredKey){
+          $this->valueParse = preg_replace("/$offeredKey/", $offeredValue, $this->valueParse);
+        }
+      );
+    }
   }
 }

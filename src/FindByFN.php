@@ -5,6 +5,7 @@ namespace Websyspro\DynamicSql;
 use ReflectionParameter;
 use Websyspro\Commons\Collection;
 use Websyspro\Commons\Reflect;
+use Websyspro\DynamicSql\Interfaces\Details;
 use Websyspro\DynamicSql\Interfaces\ItemCondition;
 use Websyspro\DynamicSql\Interfaces\ItemParameter;
 use Websyspro\DynamicSql\Utils\ArrowFN;
@@ -13,6 +14,7 @@ class FindByFN extends ArrowFN
 {
   public Collection $bodyStatics;
   public Collection $bodyParameters;
+  public Collection $bodyScripts;
 
   public function init(
   ): void{
@@ -23,6 +25,8 @@ class FindByFN extends ArrowFN
     $this->ParseBodyConditionsSplit();
     $this->ParseBodyEntityFields();
     $this->ParseBodyValuesFields();
+    $this->ParseBodyValuesEncodes();
+    $this->ParseBodyScripts();
     $this->ParseClear();
   }
 
@@ -129,6 +133,45 @@ class FindByFN extends ArrowFN
           ? $itemCondition->valuesFields($this->bodyStatics)
           : []
       )
+    );
+  }
+
+  public function ParseBodyValuesEncodes(    
+  ): void {
+    $this->body->ForEach(
+      function(ItemCondition | string $itemCondition){
+        if($itemCondition instanceof ItemCondition){
+          $itemCondition->valuesEncode();
+        }
+      }
+    );
+  }
+
+  public function ParseBodyScripts(
+  ): void {
+    $this->body->ForEach(
+      function(ItemCondition | string $itemCondition){
+        if(isset($this->bodyScripts) === false){
+          $this->bodyScripts = Collection::Create([]);
+        }
+        
+        if($itemCondition instanceof ItemCondition){
+          $this->bodyScripts->Add($itemCondition->compare());
+        } else if(is_string($itemCondition)){
+          $this->bodyScripts->Add($itemCondition);
+        }
+      }
+    );
+  }
+
+  public function Details(
+  ): Details {
+    return new Details(
+      $this->bodyParameters->Mapper(
+        fn(ItemParameter $itemParameter) => (
+          $itemParameter->structureTable->table
+        )
+      ), $this->bodyScripts
     );
   }
 

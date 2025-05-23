@@ -4,6 +4,7 @@ namespace Websyspro\DynamicSql\Interfaces;
 
 use Stringable;
 use Websyspro\Commons\Collection;
+use Websyspro\Commons\Util;
 use Websyspro\Entity\Shareds\ColumnType;
 
 class ItemCondition
@@ -85,6 +86,121 @@ class ItemCondition
     if(is_string($this->equalB)){
       $this->equalB = new ItemValue($this->equalB, $statics);
     }
+  }
+
+  public function compareFields(
+  ): void {
+
+  }
+
+  public function valuesEncode(
+  ): void {
+    $this->valuesEncodeApply($this->equalA, $this->equalB);
+    $this->valuesEncodeApply($this->equalB, $this->equalA);
+  }
+
+  public function valuesEncodeApply(
+    string | ItemField | ItemValue $equalA,
+    string | ItemField | ItemValue $equalB
+  ): void {
+    if($equalA instanceof ItemValue){
+      if(preg_match("/(^\[)|(\]$)/", $equalA->valueParse)){
+        $itemArr = Collection::Create(
+          Util::SplitWithComma(
+            preg_replace(
+              "/(^\[)|(\]$)/", "", $equalA->valueParse
+            )
+          )
+        )->Mapper(fn(string $item) => (
+          $equalB->columnType->Encode(
+            preg_replace( "/(^\")|(^\')|(\"$)|(\'$)/", "", trim($item))
+          )
+        ));
+
+        $equalA->valueParse = Util::JoinWithComma(
+          $itemArr->All(), "(%s)"
+        );
+      } else {
+        $equalA->valueParse = (
+          $equalB->columnType->Encode(
+            $equalA->valueParse
+          )
+        );
+      }
+    }    
+  }
+
+  public function compareEqualsApply(
+    string | ItemField | ItemValue $equal,
+  ): string {
+    if($equal instanceof ItemField){
+      return "{$equal->table}.{$equal->name}";
+    } else if($equal instanceof ItemValue) {
+      return "{$equal->valueParse}";
+    }
+    
+    return "";
+  }
+
+  public function compareEqualsFieldLiked(
+    string | ItemField | ItemValue $equals,
+    string $equalsLike
+  ): string {
+    if($equals instanceof ItemValue){
+      if(preg_match("/%/", $equals->value)){
+        $equalsLike = preg_replace(
+          [ "/!=/", "/=/" ],
+          [ "not like", "like" ], $equalsLike
+        );
+      }
+    }
+
+    return $equalsLike;
+  }
+
+  public function compareEqualsFieldListed(
+    string | ItemField | ItemValue $equals,
+    string $equalsLike
+  ): string {
+    if($equals instanceof ItemValue){
+      if(preg_match("/^\[.*\]$/", $equals->value)){
+        $equalsLike = preg_replace(
+          ["/!=/", "/=/"], ["not in", "in"], $equalsLike
+        );
+      }
+    }
+
+    return $equalsLike;
+  }  
+
+  public function compareEqualsField(
+  ): string {
+    $equals = preg_replace(
+      ["/!==/", "/===/"], ["!=", "="], $this->equals
+    );
+
+    $equals = $this->compareEqualsFieldLiked($this->equalA, $equals);
+    $equals = $this->compareEqualsFieldLiked($this->equalB, $equals);
+    $equals = $this->compareEqualsFieldListed($this->equalA, $equals);
+    $equals = $this->compareEqualsFieldListed($this->equalB, $equals);
+
+    return $equals;
+  }
+
+  public function compareEquals(
+  ): string {
+    $equalA = $this->compareEqualsApply($this->equalA);
+    $equals = $this->compareEqualsField($this->equals);
+    $equalB = $this->compareEqualsApply($this->equalB);
+    
+    return Collection::Create([
+      $equalA, $equals, $equalB 
+    ])->JoinWithSpace();
+  }
+
+  public function compare(
+  ): string {
+    return $this->compareEquals();
   }
 
   public function Clear(

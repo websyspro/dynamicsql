@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/websyspro/common.git",
-                "reference": "2e6f1078153dfac7151f347937bccf08e004e397"
+                "reference": "ab632e057f3eec2e6304b9414f0189920c2199e5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/websyspro/common/zipball/2e6f1078153dfac7151f347937bccf08e004e397",
-                "reference": "2e6f1078153dfac7151f347937bccf08e004e397",
+                "url": "https://api.github.com/repos/websyspro/common/zipball/ab632e057f3eec2e6304b9414f0189920c2199e5",
+                "reference": "ab632e057f3eec2e6304b9414f0189920c2199e5",
                 "shasum": ""
             },
             "default-branch": true,
@@ -43,7 +43,7 @@
                 "issues": "https://github.com/websyspro/common/issues",
                 "source": "https://github.com/websyspro/common/tree/main"
             },
-            "time": "2025-05-22T20:30:24+00:00"
+            "time": "2025-05-23T03:00:31+00:00"
         },
         {
             "name": "websyspro/entity",
