@@ -6,7 +6,10 @@
   "autoload": {
     "psr-4": {
       "Websyspro\\DynamicSql\\": "src/"
-    }
+    },
+    "files": [
+      "src/Methods.php"
+    ]
   },
   "authors": [
     {

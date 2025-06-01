@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/websyspro/common.git",
-                "reference": "fd7b37b78d129ebf56662decdf59d094496b32bc"
+                "reference": "b31b097d250136353ab29d3e8bfe4e7dba811fe9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/websyspro/common/zipball/fd7b37b78d129ebf56662decdf59d094496b32bc",
-                "reference": "fd7b37b78d129ebf56662decdf59d094496b32bc",
+                "url": "https://api.github.com/repos/websyspro/common/zipball/b31b097d250136353ab29d3e8bfe4e7dba811fe9",
+                "reference": "b31b097d250136353ab29d3e8bfe4e7dba811fe9",
                 "shasum": ""
             },
             "default-branch": true,
@@ -43,7 +43,7 @@
                 "issues": "https://github.com/websyspro/common/issues",
                 "source": "https://github.com/websyspro/common/tree/main"
             },
-            "time": "2025-05-23T14:04:03+00:00"
+            "time": "2025-05-27T22:28:32+00:00"
         },
         {
             "name": "websyspro/entity",
@@ -51,12 +51,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/websyspro/entity.git",
-                "reference": "3e2849ac0c7d6e67973e891b1187bd59fa115c8e"
+                "reference": "5d07e605dcac48d919d6e93ba62895863656c93b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/websyspro/entity/zipball/3e2849ac0c7d6e67973e891b1187bd59fa115c8e",
-                "reference": "3e2849ac0c7d6e67973e891b1187bd59fa115c8e",
+                "url": "https://api.github.com/repos/websyspro/entity/zipball/5d07e605dcac48d919d6e93ba62895863656c93b",
+                "reference": "5d07e605dcac48d919d6e93ba62895863656c93b",
                 "shasum": ""
             },
             "require-dev": {
@@ -87,7 +87,7 @@
                 "issues": "https://github.com/websyspro/entity/issues",
                 "source": "https://github.com/websyspro/entity/tree/main"
             },
-            "time": "2025-05-21T01:50:11+00:00"
+            "time": "2025-05-30T23:56:38+00:00"
         },
         {
             "name": "websyspro/watch",

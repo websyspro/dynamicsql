@@ -6,7 +6,7 @@ use Websyspro\Entity\Core\StructureTable;
 use Websyspro\Entity\Enums\ColumnType;
 use Websyspro\Entity\Shareds\Properties;
 
-class ItemField
+class EqualField
 {
   public string $table;
   public ColumnType $columnType;
@@ -22,6 +22,8 @@ class ItemField
 
   public function ParseTable(
   ): void {
+    $this->structureTable;
+
     $this->table = (
       $this->structureTable->table
     );

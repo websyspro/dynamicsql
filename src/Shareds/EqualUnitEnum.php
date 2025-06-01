@@ -2,9 +2,9 @@
 
 namespace Websyspro\DynamicSql\Shareds;
 
-class TokenString
+class EqualUnitEnum
 {
   public function __construct(
-    public string $value
+    public mixed $value
   ){}  
 }
