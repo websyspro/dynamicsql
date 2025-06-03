@@ -3,19 +3,19 @@
 namespace Websyspro\DynamicSql\Commons;
 
 use UnitEnum;
-use Websyspro\Commons\Collection;
-use Websyspro\DynamicSql\Shareds\EqualField;
-use Websyspro\DynamicSql\Shareds\EqualUnitEnum;
-use Websyspro\DynamicSql\Shareds\EqualVar;
-use Websyspro\DynamicSql\Shareds\ItemParameter;
-use Websyspro\Entity\Shareds\ColumnType;
+use Websyspro\Commons\TList;
+use Websyspro\DynamicSql\Shareds\TEqualField;
+use Websyspro\DynamicSql\Shareds\TEqualUnitEnum;
+use Websyspro\DynamicSql\Shareds\TEqualVar;
+use Websyspro\DynamicSql\Shareds\TItemParameter;
+use Websyspro\Entity\Shareds\TColumnType;
 
-class Util
+class TUtil
 {
   public static function strToArray(
     string $valueStr  
-  ): Collection {
-    return Collection::Create(
+  ): TList {
+    return TList::Create(
       explode(",", preg_replace(
         "/(^\[)|(\]$)/", "", $valueStr
       ))
@@ -23,15 +23,15 @@ class Util
   }
 
   public static function fromEntity(
-    EqualField|EqualVar|EqualUnitEnum|string $equal,
-    ItemParameter $itemParameter
-  ): EqualField|EqualVar|EqualUnitEnum|string {
+    TEqualField|TEqualVar|TEqualUnitEnum|string $equal,
+    TItemParameter $itemParameter
+  ): TEqualField|TEqualVar|TEqualUnitEnum|string {
     $column = $itemParameter->structureTable->Columns()->ListType()->Where(
-      fn(ColumnType $columnType) => "\${$itemParameter->name}->{$columnType->name}" === $equal
+      fn(TColumnType $columnType) => "\${$itemParameter->name}->{$columnType->name}" === $equal
     );
 
     if( $column->Count() ){
-      return new EqualField(
+      return new TEqualField(
         $itemParameter->structureTable, 
         $column->First()->name
       );
@@ -41,17 +41,17 @@ class Util
   }
 
   public static function fromStatics(
-    EqualField|EqualVar|EqualUnitEnum|string $equal,
-    Collection $static
-  ): EqualField|EqualVar|EqualUnitEnum|string {
-    if( $equal instanceof EqualField ){
+    TEqualField|TEqualVar|TEqualUnitEnum|string $equal,
+    TList $static
+  ): TEqualField|TEqualVar|TEqualUnitEnum|string {
+    if( $equal instanceof TEqualField ){
       return $equal;
     }
 
     if( preg_match( "/\\$/", $equal ) === 0){
       // "/(!=|==|>=|<=|<>)/"
       if( preg_match( "/(!=|==|>=|<=|<>)/i", $equal ) === 0){
-        return new EqualVar(
+        return new TEqualVar(
           $equal, $static
         );
       }
@@ -59,7 +59,7 @@ class Util
       return $equal;
     }
 
-    return new EqualVar(
+    return new TEqualVar(
       $equal, $static
     );
   }
@@ -91,8 +91,8 @@ class Util
   }
 
   public static function fromUnitEnum(
-    EqualField|EqualVar|EqualUnitEnum|string $equal
-  ): EqualField|EqualVar|EqualUnitEnum|string  {
+    TEqualField|TEqualVar|TEqualUnitEnum|string $equal
+  ): TEqualField|TEqualVar|TEqualUnitEnum|string  {
     if( is_string( $equal ) === false ){
       return $equal;
     }
@@ -113,7 +113,7 @@ class Util
 
 
     if( $constantUnitEnum instanceof UnitEnum ){
-      return new EqualUnitEnum(
+      return new TEqualUnitEnum(
         $constantUnitEnum->value
       );
     }

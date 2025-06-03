@@ -3,19 +3,19 @@
 namespace Websyspro\DynamicSql\Core;
 
 use ReflectionParameter;
-use Websyspro\Commons\Collection;
-use Websyspro\Commons\Reflect;
-use Websyspro\DynamicSql\Commons\Util;
-use Websyspro\DynamicSql\Shareds\ItemParameter;
-use Websyspro\DynamicSql\Shareds\Token;
+use Websyspro\Commons\TList;
+use Websyspro\Commons\TReflect;
+use Websyspro\DynamicSql\Commons\TUtil;
+use Websyspro\DynamicSql\Shareds\TItemParameter;
+use Websyspro\DynamicSql\Shareds\TToken;
 
-class AbstractByFn
+class TAbstractByFn
 {
   private bool $startBody = false;
   private int $brackets = 0;
   private int $parentheses =0;
 
-  public Collection $tokens;
+  public TList $tokens;
 
   public function __construct(
     private mixed $fn
@@ -26,12 +26,12 @@ class AbstractByFn
   }
 
   public function getParameters(
-  ): Collection {
-    return Collection::Create(
-      Reflect::FN($this->fn)->getParameters()
+  ): TList {
+    return TList::Create(
+      TReflect::FN($this->fn)->getParameters()
     )->Mapper(
       fn(ReflectionParameter $rp) => (
-        new ItemParameter(
+        new TItemParameter(
           $rp->getType()->getName(), 
           $rp->getName()
         )
@@ -40,10 +40,10 @@ class AbstractByFn
   }
 
   public function getStatics(
-  ): Collection {
-    return Collection::Create(
-      Util::ParseBodyStaticsUnion(
-        Reflect::FN(
+  ): TList {
+    return TList::Create(
+      TUtil::ParseBodyStaticsUnion(
+        TReflect::FN(
           $this->fn
         )->getStaticVariables()
       )
@@ -66,17 +66,17 @@ class AbstractByFn
 
   private function GetTokenAll(
     string $bodyStr
-  ): Collection {
-    return Collection::Create(
+  ): TList {
+    return TList::Create(
       token_get_all( "<?php {$bodyStr}" )
-    )->Mapper(fn(array|string $token) => new Token($token))->Slice(1);
+    )->Mapper(fn(array|string $token) => new TToken($token))->Slice(1);
   }  
 
   private function DefineStartAndEndBody(
-    Collection $reflectFnBodyTokens
-  ): Collection {
+    TList $reflectFnBodyTokens
+  ): TList {
     $reflectFnBodyTokens->Where(
-      function(Token $token){
+      function(TToken $token){
         if( $token->type === T_DOUBLE_ARROW ){
           $this->startBody = true;
         }
@@ -86,7 +86,7 @@ class AbstractByFn
     );
 
     $reflectFnBodyTokens->Where(
-      function(Token $token){
+      function(TToken $token){
         if( $token->getString() === "(" ) $this->parentheses++;
         if( $token->getString() === "[" ) $this->brackets++; 
 
@@ -116,8 +116,8 @@ class AbstractByFn
   }
 
   private function DropSpacesExtras(
-    Collection $reflectFnBodyTokens
-  ): Collection {
+    TList $reflectFnBodyTokens
+  ): TList {
     return $this->GetTokenAll(
       preg_replace([
         "/(^\s*)|(\s*$)/",
@@ -125,7 +125,7 @@ class AbstractByFn
         "/(^\s*)|(\s*$)/" 
       ], "", 
         $reflectFnBodyTokens->Mapper(
-          fn(Token $token) => $token->getString()
+          fn(TToken $token) => $token->getString()
         )->JoinNotSpace()
       )
     );
@@ -133,14 +133,14 @@ class AbstractByFn
 
   private function Load(
     callable $fn
-  ): Collection {
+  ): TList {
     $reflectFn = (
-      Reflect::FN($fn)
+      TReflect::FN($fn)
     );
     
     if( $reflectFn ){
       $reflectFNLines = (
-        Collection::Create(
+        TList::Create(
           file( $reflectFn->getFileName())
         ) 
       );

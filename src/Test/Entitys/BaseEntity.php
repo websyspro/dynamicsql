@@ -2,67 +2,67 @@
 
 namespace Websyspro\DynamicSql\Test\Entitys;
 
-use Websyspro\Entity\Decorations\Columns\Datetime;
-use Websyspro\Entity\Decorations\Columns\Flag;
-use Websyspro\Entity\Decorations\Columns\Number;
-use Websyspro\Entity\Decorations\Constraints\PrimaryKey;
-use Websyspro\Entity\Decorations\Events\Delete;
-use Websyspro\Entity\Decorations\Events\Insert;
-use Websyspro\Entity\Decorations\Events\Update;
-use Websyspro\Entity\Decorations\Generations\AutoIncrement;
-use Websyspro\Entity\Decorations\Requireds\NotNull;
+use Websyspro\Entity\Decorations\Columns\TDatetime;
+use Websyspro\Entity\Decorations\Columns\TFlag;
+use Websyspro\Entity\Decorations\Columns\TNumber;
+use Websyspro\Entity\Decorations\Constraints\TPrimaryKey;
+use Websyspro\Entity\Decorations\Events\TDelete;
+use Websyspro\Entity\Decorations\Events\TInsert;
+use Websyspro\Entity\Decorations\Events\TUpdate;
+use Websyspro\Entity\Decorations\Generations\TAutoIncrement;
+use Websyspro\Entity\Decorations\Requireds\TNotNull;
 
 class BaseEntity
 {
-  #[NotNull()]
-  #[Number()]
-  #[PrimaryKey()]
-  #[AutoIncrement()]    
+  #[TNotNull()]
+  #[TNumber()]
+  #[TPrimaryKey()]
+  #[TAutoIncrement()]    
   public int $Id;
 
-  #[Flag()]
-  #[NotNull()]
-  #[Insert(1)]
+  #[TFlag()]
+  #[TNotNull()]
+  #[TInsert(1)]
   public bool $Actived;
 
-  #[NotNull()]
-  #[Number()]
-  #[Insert(1)]
+  #[TNotNull()]
+  #[TNumber()]
+  #[TInsert(1)]
   public int $ActivedBy;
 
-  #[NotNull()]
-  #[Datetime()]
-  #[Insert(1)]
+  #[TNotNull()]
+  #[TDatetime()]
+  #[TInsert(1)]
   public string $ActivedAt;
 
-  #[NotNull()]
-  #[Number()]
-  #[Insert(1)] 
+  #[TNotNull()]
+  #[TNumber()]
+  #[TInsert(1)] 
   public int $CreatedBy;
 
-  #[NotNull()]
-  #[Datetime()]
-  #[Insert(1)]
+  #[TNotNull()]
+  #[TDatetime()]
+  #[TInsert(1)]
   public string $CreatedAt;
 
-  #[Number()]
-  #[Update(1)]
+  #[TNumber()]
+  #[TUpdate(1)]
   public int $UpdatedBy;
 
-  #[Datetime()]
-  #[Update(1)]
+  #[TDatetime()]
+  #[TUpdate(1)]
   public string $UpdatedAt;
 
-  #[Flag()]
-  #[Delete(1)]
-  #[Insert(0)]
+  #[TFlag()]
+  #[TDelete(1)]
+  #[TInsert(0)]
   public bool $Deleted;
 
-  #[Number()]
-  #[Delete(1)]
+  #[TNumber()]
+  #[TDelete(1)]
   public int $DeletedBy;
 
-  #[Datetime()]
-  #[Delete(1)]
-  public Datetime $DeletedAt;
+  #[TDatetime()]
+  #[TDelete(1)]
+  public string $DeletedAt;
 }

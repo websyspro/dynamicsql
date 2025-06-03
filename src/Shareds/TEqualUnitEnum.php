@@ -2,7 +2,7 @@
 
 namespace Websyspro\DynamicSql\Shareds;
 
-class EqualUnitEnum
+class TEqualUnitEnum
 {
   public function __construct(
     public mixed $value

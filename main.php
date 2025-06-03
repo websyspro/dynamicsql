@@ -2,12 +2,7 @@
 
 use Websyspro\DynamicSql\Test\Entitys\BoxEntity;
 use Websyspro\DynamicSql\Test\Entitys\OperatorEntity;
-use Websyspro\DynamicSql\Core\SelectByFn;
-use Websyspro\DynamicSql\Core\WhereByFn;
-use Websyspro\DynamicSql\QueryBuild;
-
-use function Websyspro\DynamicSql\CountField;
-use function Websyspro\DynamicSql\SumField;
+use Websyspro\DynamicSql\TQueryBuild;
 
 $ids = [1, 2, 3];
 $listWhite = [456,897];
@@ -26,7 +21,7 @@ enum EUserPerfil: int {
 $searach = "VERONICA";
 
 $queryBuild = (
-  QueryBuild::Create(OperatorEntity::class)
+  TQueryBuild::Create(OperatorEntity::class)
     ->Where(fn(OperatorEntity $i, BoxEntity $b) => (
       $i->Name !== trim(strtoupper("{$searach}%")) && 
       $i->ActivedBy === null &&

@@ -2,14 +2,14 @@
 
 namespace Websyspro\DynamicSql\Core;
 
-use Websyspro\Commons\Collection;
-use Websyspro\DynamicSql\Shareds\Compare;
-use Websyspro\DynamicSql\Shareds\Equal;
-use Websyspro\DynamicSql\Shareds\ItemParameter;
-use Websyspro\DynamicSql\Shareds\Token;
+use Websyspro\Commons\TList;
+use Websyspro\DynamicSql\Shareds\TCompare;
+use Websyspro\DynamicSql\Shareds\TEqual;
+use Websyspro\DynamicSql\Shareds\TItemParameter;
+use Websyspro\DynamicSql\Shareds\TToken;
 
-class WhereByFn
-extends AbstractByFn
+class TWhereByFn
+extends TAbstractByFn
 {
   private array $equals = [
     "!==", "!=",
@@ -43,7 +43,7 @@ extends AbstractByFn
   private function defineConditionsBlocks(
   ): void {
     $this->tokens->ForEach(
-      function(Token $token){
+      function(TToken $token){
         if( in_array($token->getString(), $this->equals )){
           $this->isEquals = true;
         }
@@ -80,9 +80,9 @@ extends AbstractByFn
 
   private function defineConditionsSplits(
   ): void {
-    $this->tokens = Collection::Create(
+    $this->tokens = TList::Create(
       preg_split( "/(\s{1,}&&\s{1,})|(\s{1,}and\s{1,})|(\s{1,}\|\|\s{1,})|(\s{1,}or\s{1,})|(__\()|(\)__)/i", (
-        $this->tokens->Mapper(fn( Token $token) => $token->getString())->JoinNotSpace()
+        $this->tokens->Mapper(fn(TToken $token) => $token->getString())->JoinNotSpace()
       ), -1, ( PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY ))
     )->Where(fn(string $token) => empty( trim( $token )) === false);
   }
@@ -119,7 +119,7 @@ extends AbstractByFn
   ): void {
     $this->tokens->Mapper(
       fn(string $token) => (
-        new Equal($token)
+        new TEqual($token)
       )
     );
   }
@@ -131,7 +131,7 @@ extends AbstractByFn
     );
 
     $this->tokens->ForEach(
-      fn(Equal $token) => (
+      fn(TEqual $token) => (
         $token->defineEntity(
           $parameters
         )
@@ -146,7 +146,7 @@ extends AbstractByFn
     );
 
     $this->tokens->ForEach(
-      fn(Equal $token) => (
+      fn(TEqual $token) => (
         $token->defineStatics(
           $statics
         )
@@ -157,7 +157,7 @@ extends AbstractByFn
   private function defineConditionsUnitEnums(
   ): void {
     $this->tokens->ForEach(
-      fn(Equal $token) => (
+      fn(TEqual $token) => (
         $token->defineUnitEnums()
       )
     );
@@ -166,7 +166,7 @@ extends AbstractByFn
   private function defineConditionsEvaluates(
   ): void {
     $this->tokens->ForEach(
-      fn(Equal $token) => (
+      fn(TEqual $token) => (
         $token->defineEvaluates()
       )
     );
@@ -175,7 +175,7 @@ extends AbstractByFn
   private function defineConditionsNullables(
   ): void {
     $this->tokens->ForEach(
-      fn(Equal $token) => (
+      fn(TEqual $token) => (
         $token->defineNullables()
       )
     );    
@@ -184,25 +184,25 @@ extends AbstractByFn
   private function defineConditionsParseValues(
   ): void {
     $this->tokens->ForEach(
-      fn(Equal $token) => (
+      fn(TEqual $token) => (
         $token->defineParseValues()
       )
     );
   }
 
   public function getCompare(
-  ): Compare {
-    return new Compare(
-      Collection::Create(
+  ): TCompare {
+    return new TCompare(
+      TList::Create(
         $this->getParameters()->Mapper(
-          fn( ItemParameter $itemParameter ) => (
+          fn( TItemParameter $itemParameter ) => (
             $itemParameter->structureTable->table
           )
         )->All()
       ),
-      Collection::Create([
+      TList::Create([
         $this->tokens->Copy()->Mapper(
-          function(Equal $token){
+          function(TEqual $token){
             return $token->getCompare();
           }
         )->JoinWithSpace()

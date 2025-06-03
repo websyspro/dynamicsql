@@ -4,7 +4,7 @@ namespace Websyspro\DynamicSql\Shareds;
 
 use Exception;
 
-class EvaluateFromString
+class TEvaluateFromString
 {
 	private static array $precedenceMap = [
 		"||" => 1,

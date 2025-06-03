@@ -2,23 +2,23 @@
 
 namespace Websyspro\DynamicSql;
 
-use Websyspro\Commons\Collection;
-use Websyspro\DynamicSql\Core\GroupByFn;
-use Websyspro\DynamicSql\Core\OrderByAscByFn;
-use Websyspro\DynamicSql\Core\OrderByDescByFn;
-use Websyspro\DynamicSql\Core\SelectByFn;
-use Websyspro\DynamicSql\Core\WhereByFn;
-use Websyspro\DynamicSql\Shareds\Column;
-use Websyspro\Entity\Core\StructureTable;
+use Websyspro\Commons\TList;
+use Websyspro\DynamicSql\Core\TGroupByFn;
+use Websyspro\DynamicSql\Core\TOrderByAscByFn;
+use Websyspro\DynamicSql\Core\TOrderByDescByFn;
+use Websyspro\DynamicSql\Core\TSelectByFn;
+use Websyspro\DynamicSql\Core\TWhereByFn;
+use Websyspro\DynamicSql\Shareds\TColumn;
+use Websyspro\Entity\Core\TStructureTable;
 
-class QueryBuild
+class TQueryBuild
 {
   public string $table;
-  public SelectByFn $select;
-  public WhereByFn $where;
-  public GroupByFn $groupBy;
-  public OrderByAscByFn $orderByAsc;
-  public OrderByDescByFn $orderByDesc;
+  public TSelectByFn $select;
+  public TWhereByFn $where;
+  public TGroupByFn $groupBy;
+  public TOrderByAscByFn $orderByAsc;
+  public TOrderByDescByFn $orderByDesc;
 
   public function __construct(
     public string $class
@@ -29,55 +29,55 @@ class QueryBuild
   private function defineTable(
   ): void {
     $this->table = (
-      new StructureTable($this->class)
+      new TStructureTable($this->class)
     )->table;
   }
 
   private function SetProps(
     string $name,
     mixed $prop
-  ): QueryBuild {
+  ): TQueryBuild {
     $this->{$name} = $prop;
     return $this;
   }
 
   public function Select(
     callable $fn
-  ): QueryBuild {
+  ): TQueryBuild {
     return $this->SetProps(
-      "select", SelectByFn::Create($fn)
+      "select", TSelectByFn::Create($fn)
     );
   }
 
   public function Where(
     callable $fn
-  ): QueryBuild {
+  ): TQueryBuild {
     return $this->SetProps(
-      "where", WhereByFn::Create($fn)
+      "where", TWhereByFn::Create($fn)
     );
   }
 
   public function GroupBy(
     callable $fn
-  ): QueryBuild {
+  ): TQueryBuild {
     return $this->SetProps(
-      "groupBy", GroupByFn::Create($fn)
+      "groupBy", TGroupByFn::Create($fn)
     );
   }
 
   public function OrderByAsc(
     callable $fn
-  ): QueryBuild {
+  ): TQueryBuild {
     return $this->SetProps(
-      "orderByAsc", OrderByAscByFn::Create($fn)
+      "orderByAsc", TOrderByAscByFn::Create($fn)
     );
   }
 
   public function OrderByDesc(
     callable $fn
-  ): QueryBuild {
+  ): TQueryBuild {
     return $this->SetProps(
-      "orderByDesc", OrderByDescByFn::Create($fn)
+      "orderByDesc", TOrderByDescByFn::Create($fn)
     );
   }
 
@@ -88,7 +88,7 @@ class QueryBuild
     }
 
     return $this->select->tokens->Mapper(
-      fn(Column $column ) => $column->ToString()
+      fn(TColumn $column ) => $column->ToString()
     )->JoinWithComma();
   }
 
@@ -119,7 +119,7 @@ class QueryBuild
     }
 
     return sprintf( "Group By %s", $this->groupBy->tokens->Mapper(
-      fn(Column $column ) => $column->ToString()
+      fn(TColumn $column ) => $column->ToString()
     )->JoinWithComma());
   }
 
@@ -136,7 +136,7 @@ class QueryBuild
     }
 
     return $this->{$oderbyProps}->tokens->Mapper(
-      fn(Column $column) => sprintf( "%s {$oderbyType}", $column->ToString())
+      fn(TColumn $column) => sprintf( "%s {$oderbyType}", $column->ToString())
     )->All();
   }
 
@@ -145,7 +145,7 @@ class QueryBuild
     $orderByAsc = $this->GetOrderByList( "orderByAsc", "Asc" );
     $orderByDesc = $this->GetOrderByList( "orderByDesc", "Desc" );
 
-    return sprintf( "Order By %s", Collection::Create(
+    return sprintf( "Order By %s", TList::Create(
       array_merge( $orderByAsc, $orderByDesc )
     )->JoinWithComma());
   }
@@ -165,7 +165,7 @@ class QueryBuild
   
   public static function Create(
     string $class
-  ): QueryBuild {
+  ): TQueryBuild {
     return new static($class);
   }
 }

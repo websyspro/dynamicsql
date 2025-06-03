@@ -2,7 +2,7 @@
 
 namespace Websyspro\DynamicSql\Shareds;
 
-class Token
+class TToken
 {
   public int $type;
   public string $line;
