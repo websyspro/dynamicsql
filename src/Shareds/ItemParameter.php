@@ -2,13 +2,13 @@
 
 namespace Websyspro\DynamicSql\Shareds;
 
-use Websyspro\Commons\TList;
-use Websyspro\Entity\Core\TStructureTable;
+use Websyspro\Commons\DataList;
+use Websyspro\Entity\Core\StructureTable;
 
-class TItemParameter
+class ItemParameter
 {
-  public TList $properts;
-  public TStructureTable $structureTable;
+  public DataList $properts;
+  public StructureTable $structureTable;
 
   public function __construct(
     public string $entity,
@@ -20,7 +20,7 @@ class TItemParameter
   public function ParseParameters(
   ): void {
     $this->structureTable = (
-      new TStructureTable($this->entity)
+      new StructureTable($this->entity)
     );
   }
 }

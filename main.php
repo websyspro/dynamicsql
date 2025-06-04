@@ -2,7 +2,7 @@
 
 use Websyspro\DynamicSql\Test\Entitys\BoxEntity;
 use Websyspro\DynamicSql\Test\Entitys\OperatorEntity;
-use Websyspro\DynamicSql\TQueryBuild;
+use Websyspro\DynamicSql\QueryBuild;
 
 $ids = [1, 2, 3];
 $listWhite = [456,897];
@@ -21,7 +21,7 @@ enum EUserPerfil: int {
 $searach = "VERONICA";
 
 $queryBuild = (
-  TQueryBuild::Create(OperatorEntity::class)
+  QueryBuild::Create(OperatorEntity::class)
     ->Where(fn(OperatorEntity $i, BoxEntity $b) => (
       $i->Name !== trim(strtoupper("{$searach}%")) && 
       $i->ActivedBy === null &&

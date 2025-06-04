@@ -2,13 +2,13 @@
 
 namespace Websyspro\DynamicSql\Test\Entitys;
 
-use Websyspro\Entity\Decorations\Columns\TText;
-use Websyspro\Entity\Decorations\Constraints\TUnique;
+use Websyspro\Entity\Decorations\Columns\Text;
+use Websyspro\Entity\Decorations\Constraints\Unique;
 
 class OperatorEntity
 extends BaseEntity
 {
-  #[TText(64)]
-  #[TUnique(1)]
+  #[Text(64)]
+  #[Unique(1)]
   public string $Name;
 }

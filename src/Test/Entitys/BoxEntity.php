@@ -2,35 +2,35 @@
 
 namespace Websyspro\DynamicSql\Test\Entitys;
 
-use Websyspro\Entity\Decorations\Columns\TDatetime;
-use Websyspro\Entity\Decorations\Columns\TDecimal;
-use Websyspro\Entity\Decorations\Columns\TNumber;
-use Websyspro\Entity\Decorations\Columns\TText;
-use Websyspro\Entity\Decorations\Constraints\TForeignKey;
-use Websyspro\Entity\Decorations\Constraints\TUnique;
-use Websyspro\Entity\Decorations\Statistics\TIndex;
+use Websyspro\Entity\Decorations\Columns\Datetime;
+use Websyspro\Entity\Decorations\Columns\Decimal;
+use Websyspro\Entity\Decorations\Columns\Number;
+use Websyspro\Entity\Decorations\Columns\Text;
+use Websyspro\Entity\Decorations\Constraints\ForeignKey;
+use Websyspro\Entity\Decorations\Constraints\Unique;
+use Websyspro\Entity\Decorations\Statistics\Index;
 
 class BoxEntity 
 extends BaseEntity
 {
-  #[TText(32)]
-  #[TIndex()]
-  #[TUnique()]
+  #[Text(32)]
+  #[Index()]
+  #[Unique()]
   public string $Name;
 
-  #[TText(1)]
+  #[Text(1)]
   public string $State;
 
-  #[TNumber()]
-  #[TForeignKey(OperatorEntity::class)]
+  #[Number()]
+  #[ForeignKey(OperatorEntity::class)]
   public string $OperatorId;
 
-  #[TText(255)]
+  #[Text(255)]
   public string $Printer;
 
-  #[TDatetime()]
+  #[Datetime()]
   public string $OpeningAt;
 
-  #[TDecimal(10,2)]
+  #[Decimal(10,2)]
   public string $OpeningBalance;
 }

@@ -2,15 +2,16 @@
 
 namespace Websyspro\DynamicSql\Shareds;
 
-use Websyspro\Commons\TList;
-use Websyspro\DynamicSql\Commons\TUtil;
-use Websyspro\DynamicSql\Enums\TEqualType;
-use Websyspro\Entity\Enums\TColumnType;
+use Websyspro\Commons\DataList;
+use Websyspro\DynamicSql\Commons\Util;
+use Websyspro\DynamicSql\Enums\EqualType;
+use Websyspro\DynamicSql\Interfaces\IEqualUnitEnum;
+use Websyspro\Entity\Enums\ColumnType;
 
-class TEqual
+class Equal
 {
-  public TList $equals;
-  public TEqualType $equalType;
+  public DataList $equals;
+  public EqualType $equalType;
 
   public function __construct(
     public string $value
@@ -21,7 +22,7 @@ class TEqual
 
   private function define(
   ): void {
-    $this->equals = TList::Create(
+    $this->equals = DataList::Create(
       preg_split("/(!=|==|>=|<=|<>)/", $this->value, 2, (
         PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY
       ))
@@ -35,57 +36,57 @@ class TEqual
   private function defineEqualType(
   ): void {
     if( preg_match("/(^And$)|(^Or$)/", $this->value )){
-      $this->equalType = TEqualType::Logical;
+      $this->equalType = EqualType::Logical;
     } else
     if( preg_match("/(^\\($)/", $this->value )){
-      $this->equalType = TEqualType::StartGroup;
+      $this->equalType = EqualType::StartGroup;
     } else
     if( preg_match("/(^\\)$)/", $this->value )){
-      $this->equalType = TEqualType::EndGroup;
+      $this->equalType = EqualType::EndGroup;
     } else
     if( preg_match("/(!=|==|>=|<=|<>)/", $this->value )){
-      $this->equalType = TEqualType::Equal;
+      $this->equalType = EqualType::Equal;
     }
   }
 
   public function defineEntity(
-    TList $parameters
+    DataList $parameters
   ): void {
-    if( $this->equalType === TEqualType::Equal ){
-      $parameters->ForEach( fn(TItemParameter $itemParameter) => (
-        $this->equals->Mapper( fn(TEqualField|TEqualVar|TEqualUnitEnum|string $equal) => (
-          TUtil::fromEntity( $equal, $itemParameter )
+    if( $this->equalType === EqualType::Equal ){
+      $parameters->ForEach( fn(ItemParameter $itemParameter) => (
+        $this->equals->Mapper( fn(EqualField|EqualVar|IEqualUnitEnum|string $equal) => (
+          Util::fromEntity( $equal, $itemParameter )
         ))
       ));
     }
   }
 
   public function defineStatics(
-    TList $statics
+    DataList $statics
   ): void {
-    if( $this->equalType === TEqualType::Equal ){
-      $this->equals->Mapper( fn(TEqualField|TEqualVar|TEqualUnitEnum|string $equal) => (
-        TUtil::fromStatics( $equal, $statics )
+    if( $this->equalType === EqualType::Equal ){
+      $this->equals->Mapper( fn(EqualField|EqualVar|IEqualUnitEnum|string $equal) => (
+        Util::fromStatics( $equal, $statics )
       ));
     }
   }
 
   public function defineUnitEnums(
   ): void {
-    if( $this->equalType === TEqualType::Equal ){
-      $this->equals->Mapper( fn(TEqualField|TEqualVar|TEqualUnitEnum|string $equal) => (
-        TUtil::fromUnitEnum( $equal )
+    if( $this->equalType === EqualType::Equal ){
+      $this->equals->Mapper( fn(EqualField|EqualVar|IEqualUnitEnum|string $equal) => (
+        Util::fromUnitEnum( $equal )
       ));      
     }
   }
 
   public function defineEvaluates(
   ): void {
-    if( $this->equalType === TEqualType::Equal ){
+    if( $this->equalType === EqualType::Equal ){
       $this->equals->ForEach(
-        function(TEqualField|TEqualVar|TEqualUnitEnum|string $equal){
-          if( $equal instanceof TEqualVar ){
-            $equal->value = TEvaluateFromString::Execute( $equal->value );
+        function(EqualField|EqualVar|IEqualUnitEnum|string $equal){
+          if( $equal instanceof EqualVar ){
+            $equal->value = EvaluateFromString::Execute( $equal->value );
           }
         }
       );
@@ -94,10 +95,10 @@ class TEqual
 
   public function defineNullables(
   ): void {
-    if( $this->equalType === TEqualType::Equal ){
+    if( $this->equalType === EqualType::Equal ){
       $this->equals->ForEach(
-        function(TEqualField|TEqualVar|TEqualUnitEnum|string $equal){
-          if( $equal instanceof TEqualVar ){
+        function(EqualField|EqualVar|IEqualUnitEnum|string $equal){
+          if( $equal instanceof EqualVar ){
             if( preg_match( "/null/i", $equal->value )){
               $equal->value = strtoupper(
                 $equal->value
@@ -110,20 +111,20 @@ class TEqual
   }
 
   private function hasField(
-    TEqualField|TEqualVar|TEqualUnitEnum|string $equal
+    EqualField|EqualVar|IEqualUnitEnum|string $equal
   ): bool {
-    return $equal instanceof TEqualField;
+    return $equal instanceof EqualField;
   }
 
   private function hasParsed(
-    TEqualField|TEqualVar|TEqualUnitEnum|string $equal
+    EqualField|EqualVar|IEqualUnitEnum|string $equal
   ): bool {
-    return $equal instanceof TEqualVar
-        || $equal instanceof TEqualUnitEnum;
+    return $equal instanceof EqualVar
+        || $equal instanceof IEqualUnitEnum;
   }
   
   private function defineParse(
-    TColumnType $columnType,
+    ColumnType $columnType,
     string $value
   ): string {
     $hasArray = preg_match(
@@ -133,7 +134,7 @@ class TEqual
     if( $hasArray ){
       $value = (
         sprintf("(%s)", (
-          TUtil::strToArray($value)->Mapper(
+          Util::strToArray($value)->Mapper(
             fn(string $str) => (
               $columnType->Encode(
                 $str
@@ -159,7 +160,7 @@ class TEqual
   
   public function defineParseValues(
   ): void {
-    if( $this->equalType === TEqualType::Equal ){
+    if( $this->equalType === EqualType::Equal ){
       [ $equalA, $_, $equalC ] = (
         $this->equals->All()
       ); 
@@ -183,14 +184,14 @@ class TEqual
   }
 
   private function getCompareIsField(
-    TEqualField $equal
+    EqualField $equal
   ): string {
     return "{$equal->table}.{$equal->name}";
   }
 
   private function getCompareToCompare(
-    TEqualField|TEqualVar|TEqualUnitEnum|string|null $equal,
-    TEqualField|TEqualVar|TEqualUnitEnum|string $compare
+    EqualField|EqualVar|IEqualUnitEnum|string|null $equal,
+    EqualField|EqualVar|IEqualUnitEnum|string $compare
   ): string {
     if( is_null( $equal ) === false ){
       if( preg_match("/(^NULL$)|(^\((.*?)\s*\)$)/", $equal->value )){
@@ -209,7 +210,7 @@ class TEqual
 
   public function getCompare(
   ): string|null {
-    if($this->equalType !== TEqualType::Equal){
+    if($this->equalType !== EqualType::Equal){
       return $this->equals->First(); 
     } else {
       [ $equalA, $equalB, $equalC ] = (

@@ -2,14 +2,14 @@
 
 namespace Websyspro\DynamicSql\Core;
 
-use Websyspro\Commons\TList;
-use Websyspro\DynamicSql\Shareds\TColumn;
-use Websyspro\DynamicSql\Shareds\TItemParameter;
-use Websyspro\DynamicSql\Shareds\TToken;
-use Websyspro\Entity\Shareds\TColumnType;
+use Websyspro\Commons\DataList;
+use Websyspro\DynamicSql\Shareds\Column;
+use Websyspro\DynamicSql\Shareds\ItemParameter;
+use Websyspro\DynamicSql\Shareds\Token;
+use Websyspro\Entity\Interfaces\IColumnType;
 
-class TAbstractColumnByFn
-extends TAbstractByFn
+class AbstractColumnByFn
+extends AbstractByFn
 {
   public function defines(
   ): void {
@@ -23,7 +23,7 @@ extends TAbstractByFn
   
   private function defineColumnsToString(
   ): void {
-    $this->tokens->Mapper(fn(TToken $token) => $token->getString())->Where(
+    $this->tokens->Mapper(fn(Token $token) => $token->getString())->Where(
       fn(string $token) => empty(trim($token)) === false
     );
   }
@@ -38,7 +38,7 @@ extends TAbstractByFn
 
   private function defineColumnsSplits(
   ): void {
-    $this->tokens = TList::Create(
+    $this->tokens = DataList::Create(
       explode(",", $this->tokens->JoinNotSpace())
     );
   }
@@ -46,9 +46,9 @@ extends TAbstractByFn
   private function defineColumnsEntitys(
   ): void {
     $this->getParameters()->ForEach(
-      fn(TItemParameter $itemParameter) => (
+      fn(ItemParameter $itemParameter) => (
         $itemParameter->structureTable->Columns()->ListType()->ForEach(
-          fn(TColumnType $columnType) => (
+          fn(IColumnType $columnType) => (
             $this->tokens->Mapper(
               fn(string $token) => preg_replace(
                 "/\\$$itemParameter->name->$columnType->name/", 
@@ -64,7 +64,7 @@ extends TAbstractByFn
   private function defineColumnsCreate(
   ): void {
     $this->tokens->Mapper(
-      fn(string $token) => new TColumn($token) 
+      fn(string $token) => new Column($token) 
     );
   }  
 

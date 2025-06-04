@@ -2,17 +2,17 @@
 
 namespace Websyspro\DynamicSql\Shareds;
 
-use Websyspro\Entity\Core\TStructureTable;
-use Websyspro\Entity\Enums\TColumnType;
-use Websyspro\Entity\Shareds\TProperties;
+use Websyspro\Entity\Enums\ColumnType;
+use Websyspro\Entity\Core\StructureTable;
+use Websyspro\Entity\Interfaces\IProperties;
 
-class TEqualField
+class EqualField
 {
   public string $table;
-  public TColumnType $columnType;
+  public ColumnType $columnType;
 
   public function __construct(
-    public TStructureTable $structureTable,
+    public StructureTable $structureTable,
     public string $name
   ){
     $this->ParseTable();
@@ -32,7 +32,7 @@ class TEqualField
   public function ParseType(
   ): void {
     $this->columnType = $this->structureTable->Columns()->List()->Where(
-      fn(TProperties $properties) => $properties->name === $this->name
+      fn(IProperties $properties) => $properties->name === $this->name
     )->First()->items->First()->columnType;
   }
 

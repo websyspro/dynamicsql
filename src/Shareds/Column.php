@@ -2,7 +2,7 @@
 
 namespace Websyspro\DynamicSql\Shareds;
 
-class TColumn
+class Column
 {
   public string $table;
   public string $name;

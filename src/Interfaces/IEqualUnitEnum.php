@@ -1,8 +1,8 @@
 <?php
 
-namespace Websyspro\DynamicSql\Shareds;
+namespace Websyspro\DynamicSql\Interfaces;
 
-class TEqualUnitEnum
+class IEqualUnitEnum
 {
   public function __construct(
     public mixed $value

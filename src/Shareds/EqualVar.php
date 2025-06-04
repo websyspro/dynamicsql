@@ -2,13 +2,13 @@
 
 namespace Websyspro\DynamicSql\Shareds;
 
-use Websyspro\Commons\TList;
+use Websyspro\Commons\DataList;
 
-class TEqualVar
+class EqualVar
 {
   public function __construct(
     public mixed $value,
-    public TList $statics
+    public DataList $statics
   ){
     $this->defineFilter();
     $this->defineStatics();

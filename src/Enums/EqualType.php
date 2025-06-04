@@ -2,7 +2,7 @@
 
 namespace Websyspro\DynamicSql\Enums;
 
-enum TEqualType
+enum EqualType
 {
   case Equal;
   case StartGroup;
