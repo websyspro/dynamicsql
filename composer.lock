@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/websyspro/common.git",
-                "reference": "fdc54602529c8b379549dca3b93a8c08205ddf0d"
+                "reference": "01711b108f7d24cd621a02739dd885eba2b7e3d9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/websyspro/common/zipball/fdc54602529c8b379549dca3b93a8c08205ddf0d",
-                "reference": "fdc54602529c8b379549dca3b93a8c08205ddf0d",
+                "url": "https://api.github.com/repos/websyspro/common/zipball/01711b108f7d24cd621a02739dd885eba2b7e3d9",
+                "reference": "01711b108f7d24cd621a02739dd885eba2b7e3d9",
                 "shasum": ""
             },
             "default-branch": true,
@@ -43,7 +43,7 @@
                 "issues": "https://github.com/websyspro/common/issues",
                 "source": "https://github.com/websyspro/common/tree/main"
             },
-            "time": "2025-06-04T14:28:23+00:00"
+            "time": "2025-06-11T14:19:01+00:00"
         },
         {
             "name": "websyspro/entity",
@@ -51,18 +51,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/websyspro/entity.git",
-                "reference": "cd05de44c6df594e175ce07962d6ac72acd9fe56"
+                "reference": "3919b1d54134290c5d066418fd6640510b553899"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/websyspro/entity/zipball/cd05de44c6df594e175ce07962d6ac72acd9fe56",
-                "reference": "cd05de44c6df594e175ce07962d6ac72acd9fe56",
+                "url": "https://api.github.com/repos/websyspro/entity/zipball/3919b1d54134290c5d066418fd6640510b553899",
+                "reference": "3919b1d54134290c5d066418fd6640510b553899",
                 "shasum": ""
             },
             "require-dev": {
                 "websyspro/common": "dev-main",
                 "websyspro/database": "dev-main",
                 "websyspro/dynamicsql": "dev-main",
+                "websyspro/logger": "dev-main",
                 "websyspro/watch": "dev-main"
             },
             "default-branch": true,
@@ -87,7 +88,7 @@
                 "issues": "https://github.com/websyspro/entity/issues",
                 "source": "https://github.com/websyspro/entity/tree/main"
             },
-            "time": "2025-06-04T14:31:04+00:00"
+            "time": "2025-06-11T20:27:03+00:00"
         },
         {
             "name": "websyspro/watch",

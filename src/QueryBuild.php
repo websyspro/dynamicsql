@@ -83,7 +83,11 @@ class QueryBuild
 
   private function GetColumns(
   ): string {
-    if( $this->select->tokens->Count() === 0 ){
+    if(isset($this->select) === false){
+      return "*";
+    }
+
+    if($this->select->tokens->Count() === 0){
       return "*";  
     }
 
@@ -94,6 +98,10 @@ class QueryBuild
 
   private function GetFroms(
   ): string {
+    if(isset($this->where) === false){
+      return $this->table;
+    }
+
     $compare = $this->where->getCompare();
     if( $compare->froms->Count() === 0 ){
       return $this->table;
@@ -104,6 +112,10 @@ class QueryBuild
 
   private function GetWheres(
   ): string {
+    if(isset($this->where) === false){
+      return "1=1";
+    }
+
     $compare = $this->where->getCompare();
     if( $compare->conditions->Count() === 0 ){
       return "1=1";
@@ -114,11 +126,15 @@ class QueryBuild
 
   private function GetGroupBy(
   ): string {
-    if( $this->groupBy->tokens->Count() === 0 ){
+    if(isset($this->groupBy) === false){
       return "";
     }
 
-    return sprintf( "Group By %s", $this->groupBy->tokens->Mapper(
+    if($this->groupBy->tokens->Count() === 0){
+      return "";
+    }
+
+    return sprintf("Group By %s", $this->groupBy->tokens->Mapper(
       fn(Column $column ) => $column->ToString()
     )->JoinWithComma());
   }
@@ -142,12 +158,16 @@ class QueryBuild
 
   private function GetOrderBy(
   ): string {
-    $orderByAsc = $this->GetOrderByList( "orderByAsc", "Asc" );
-    $orderByDesc = $this->GetOrderByList( "orderByDesc", "Desc" );
+    $orderByList = DataList::Create(
+      array_merge(
+        $this->GetOrderByList("orderByAsc", "Asc"),
+        $this->GetOrderByList("orderByDesc", "Desc")
+      )
+    );
 
-    return sprintf( "Order By %s", DataList::Create(
-      array_merge( $orderByAsc, $orderByDesc )
-    )->JoinWithComma());
+    return $orderByList->Count() !== 0
+      ? sprintf( "Order By %s", $orderByList->JoinWithComma())
+      : "Order By 1 Asc";
   }
 
   public function Get(

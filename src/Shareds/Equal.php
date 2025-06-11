@@ -194,13 +194,17 @@ class Equal
     EqualField|EqualVar|IEqualUnitEnum|string $compare
   ): string {
     if( is_null( $equal ) === false ){
-      if( preg_match("/(^NULL$)|(^\((.*?)\s*\)$)/", $equal->value )){
+      if( preg_match("/(^NULL$)|(^\((.*?)\s*\)$)|(%)/", $equal->value )){
         if( preg_match( "/^NULL$/", $equal->value )){
           return $compare === "==" ? "Is" : "Not";
         }
 
         if( preg_match( "/^\((.*?)\s*\)$/", $equal->value )){
           return $compare === "==" ? "In" : "Not In";
+        }
+
+        if( preg_match( "/%/", $equal->value )){
+          return $compare === "==" ? "Like" : "Not Like";
         }
       }
     }
