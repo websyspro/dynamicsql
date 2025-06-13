@@ -170,7 +170,7 @@ class Equal
       return "{$value} 00:00:00";
     }
 
-    return "";
+    return $value;
   }
   
   public function defineParseValues(
