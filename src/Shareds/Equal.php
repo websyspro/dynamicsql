@@ -157,6 +157,21 @@ class Equal
 
     return $value;
   }
+
+  public function valueOfDatetime(
+    ColumnType $columnType,
+    string $value
+  ): string {
+    if($columnType !== ColumnType::Datetime){
+      return $value;
+    }
+
+    if(strlen($value) === 10){
+      return "{$value} 00:00:00";
+    }
+
+    return "";
+  }
   
   public function defineParseValues(
   ): void {
@@ -167,8 +182,11 @@ class Equal
 
       if($this->hasField($equalA)){
         if($this->hasParsed($equalC)){
+          print_r($equalA->columnType);
           $equalC->value = $this->defineParse(
-            $equalA->columnType, $equalC->value
+            $equalA->columnType, $this->valueOfDatetime(
+              $equalA->columnType, $equalC->value
+            )
           );
         }
       }
@@ -176,7 +194,9 @@ class Equal
       if($this->hasField($equalC)){
         if($this->hasParsed($equalA)){
           $equalA->value = $this->defineParse(
-            $equalC->columnType, $equalA->value
+            $equalC->columnType, $this->valueOfDatetime(
+              $equalC->columnType, $equalA->value
+            )
           );
         }
       }

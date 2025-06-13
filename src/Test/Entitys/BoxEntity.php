@@ -2,6 +2,7 @@
 
 namespace Websyspro\DynamicSql\Test\Entitys;
 
+use Websyspro\Entity\Core\Bases\BaseEntity;
 use Websyspro\Entity\Decorations\Columns\Datetime;
 use Websyspro\Entity\Decorations\Columns\Decimal;
 use Websyspro\Entity\Decorations\Columns\Number;

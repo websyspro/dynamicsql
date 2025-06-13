@@ -1,8 +1,7 @@
 <?php
 
-use Websyspro\DynamicSql\Test\Entitys\BoxEntity;
-use Websyspro\DynamicSql\Test\Entitys\OperatorEntity;
 use Websyspro\DynamicSql\QueryBuild;
+use Websyspro\DynamicSql\Test\Entitys\DocumentEntity;
 
 $ids = [1, 2, 3];
 $listWhite = [456,897];
@@ -20,39 +19,29 @@ enum EUserPerfil: int {
 
 $searach = "VERONICA";
 
+$date = [
+  "CreatedAtStart" => "04/04/2023",
+  "CreatedAtEnd" => "06/04/2023",
+  "State" => "C"
+];
+
 $queryBuild = (
-  QueryBuild::Create(OperatorEntity::class)
-    // ->Where(fn(OperatorEntity $i, BoxEntity $b) => (
-    //   $i->Name !== trim(strtoupper("{$searach}%")) && 
-    //   $i->ActivedBy === null &&
-    //   $i->Actived === true &&
-    //   $i->Id == $ids || (
-    //     $i->Name !== "Test" &&
-    //     $i->ActivedBy === $userId && !$i->Actived && (
-    //       $i->DeletedBy === $listWhite || (
-    //         $i->DeletedBy === $listWhite && (
-    //           $i->DeletedBy !== $listWhite || (
-    //             $i->DeletedBy === $listWhite &&
-    //             $i->Id == $b->Id
-    //           )
-    //         )
-    //       )
-    //     )
-    //   ) &&
-    //   $i->ActivedAt >= $dates->between->dataA &&
-    //   $i->ActivedAt <= $dates->between->dataB &&
-    //   $i->ActivedAt === "22/05/2025" &&
-    //   $i->Actived === EUserPerfil::Administrador
-    // ))
-    //->GroupBy(fn(OperatorEntity $g) => $g->Id)
-    //->OrderByAsc(fn(OperatorEntity $o) => $o->ActivedAt)
-    //->OrderByDesc(fn(OperatorEntity $o) => $o->DeletedAt)
-    // ->Select(fn(OperatorEntity $i) => [
-    //   $i->Id,
-    //   $i->Name,
-    //   $i->Actived,
-    //   $i->CreatedAt
-    // ])
+  QueryBuild::Create(DocumentEntity::class)
+    ->Where(fn(DocumentEntity $d) => (
+      $d->CreatedAt >= $date["CreatedAtStart"] &&
+      $d->CreatedAt <= $date["CreatedAtEnd"] &&
+      $d->State == [$date["State"]]
+    ))
+    ->Select(fn(DocumentEntity $d) => [
+      $d->Id,
+      $d->Type,
+      $d->State,
+      $d->OperatorId,
+      $d->CustomerId,
+      $d->Value,
+      $d->CreatedAt
+    ])
+    ->OrderByDesc(fn(DocumentEntity $document) => $document->CreatedAt)
     ->Get()
 
 );
