@@ -182,7 +182,6 @@ class Equal
 
       if($this->hasField($equalA)){
         if($this->hasParsed($equalC)){
-          print_r($equalA->columnType);
           $equalC->value = $this->defineParse(
             $equalA->columnType, $this->valueOfDatetime(
               $equalA->columnType, $equalC->value
