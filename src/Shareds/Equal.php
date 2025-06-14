@@ -158,23 +158,9 @@ class Equal
     return $value;
   }
 
-  public function valueOfDatetime(
-    ColumnType $columnType,
-    string $value
-  ): string {
-    if($columnType !== ColumnType::Datetime){
-      return $value;
-    }
-
-    if(strlen($value) === 10){
-      return "{$value} 00:00:00";
-    }
-
-    return $value;
-  }
-  
   public function defineParseValues(
   ): void {
+
     if( $this->equalType === EqualType::Equal ){
       [ $equalA, $_, $equalC ] = (
         $this->equals->All()
@@ -183,9 +169,7 @@ class Equal
       if($this->hasField($equalA)){
         if($this->hasParsed($equalC)){
           $equalC->value = $this->defineParse(
-            $equalA->columnType, $this->valueOfDatetime(
-              $equalA->columnType, $equalC->value
-            )
+            $equalA->columnType, $equalC->value
           );
         }
       }
@@ -193,9 +177,7 @@ class Equal
       if($this->hasField($equalC)){
         if($this->hasParsed($equalA)){
           $equalA->value = $this->defineParse(
-            $equalC->columnType, $this->valueOfDatetime(
-              $equalC->columnType, $equalA->value
-            )
+            $equalC->columnType, $equalA->value
           );
         }
       }
@@ -203,8 +185,18 @@ class Equal
   }
 
   private function getCompareIsField(
-    EqualField $equal
+    EqualField $equal,
+    ColumnType|null $columnType,
+    string|null $value
   ): string {
+    if($value === null || $columnType !== ColumnType::Datetime){
+      return "{$equal->table}.{$equal->name}";
+    }
+
+    if(strlen($value) === 12){
+      return "Date({$equal->table}.{$equal->name})";
+    }
+
     return "{$equal->table}.{$equal->name}";
   }
 
@@ -243,7 +235,9 @@ class Equal
       if($this->hasField($equalA)){
         if($this->hasParsed($equalC)){
           return sprintf("%s %s %s", 
-            $this->getCompareIsField($equalA), 
+            $this->getCompareIsField(
+              $equalA, $equalA->columnType, $equalC->value
+            ), 
             $this->getCompareToCompare(
               $equalC, $equalB
             ), $equalC->value
@@ -254,7 +248,9 @@ class Equal
       if($this->hasField($equalC)){
         if($this->hasParsed($equalA)){
           return sprintf("%s %s %s", 
-            $this->getCompareIsField($equalC), 
+            $this->getCompareIsField(
+              $equalC, $equalC->columnType, $equalA->value
+            ), 
             $this->getCompareToCompare(
               $equalA, $equalB
             ), $equalA->value
@@ -265,10 +261,14 @@ class Equal
       if($this->hasField($equalA)){
         if($this->hasField($equalC)){
           return sprintf("%s %s %s", 
-            $this->getCompareIsField($equalA), 
+            $this->getCompareIsField(
+              $equalA, null, null
+            ), 
             $this->getCompareToCompare(
               null, $equalB
-            ), $this->getCompareIsField($equalC)
+            ), $this->getCompareIsField(
+              $equalC, null, null
+            )
           );       
         }
       }      

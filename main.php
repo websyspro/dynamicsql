@@ -29,8 +29,7 @@ $queryBuild = (
   QueryBuild::Create(DocumentEntity::class)
     ->Where(fn(DocumentEntity $d) => (
       $d->CreatedAt >= $date["CreatedAtStart"] &&
-      $d->CreatedAt <= $date["CreatedAtEnd"] &&
-      $d->State == [$date["State"]]
+      $d->CreatedAt <= $date["CreatedAtEnd"]
     ))
     ->Select(fn(DocumentEntity $d) => [
       $d->Id,
