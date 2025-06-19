@@ -41,6 +41,7 @@ extends AbstractByFn
     $this->defineConditionsUnitEnums();
     $this->defineConditionsEvaluates();
     $this->defineConditionsNullables();
+    $this->defineConditionsStrings();
     // $this->defineConditionsNegations();
   }
 
@@ -205,6 +206,27 @@ extends AbstractByFn
                 $equalItems->Last()->value
               );
             }
+
+            return DataList::Create([
+              $equalItems->First(), $equalItems->Last()
+            ]);
+          }
+        );  
+        
+        return $compare;
+      }
+    );    
+  }
+
+    private function defineConditionsStrings(
+  ): void {
+    $this->tokens->Mapper(
+      function(Compare $compare){
+        $compare->equals->Mapper(
+          function(DataList $equalItems){
+            $equalItems->Last()->value = strtoupper(
+              trim($equalItems->Last()->value, "\"'")
+            );
 
             return DataList::Create([
               $equalItems->First(), $equalItems->Last()
