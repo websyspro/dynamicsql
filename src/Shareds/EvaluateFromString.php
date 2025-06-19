@@ -16,8 +16,12 @@ class EvaluateFromString
 	];
 
   public static function Execute(
-		string $code
+		mixed $code
 	): mixed {
+		if(is_string($code) === true){
+			return $code;
+		}
+
 		if(preg_match('/^\s*\w+\s*\(/', $code) === 0){
 			return $code;
 		}

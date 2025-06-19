@@ -49,7 +49,6 @@ class Util
     }
 
     if( preg_match( "/\\$/", $equal ) === 0){
-      // "/(!=|==|>=|<=|<>)/"
       if( preg_match( "/(!=|==|>=|<=|<>)/i", $equal ) === 0){
         return new EqualVar(
           $equal, $static
@@ -98,24 +97,37 @@ class Util
     }
 
     $hasConstante = preg_match(
-      "/^[A-Za-z_][A-Za-z0-9_]*::[A-Za-z_][A-Za-z0-9_]*$/", $equal
+      "/^[A-Za-z_][A-Za-z0-9_]*::[A-Za-z_][A-Za-z0-9_]*->(value|name)*$/", $equal
     );
 
     if( $hasConstante === 0 ){
       return $equal; 
     }
 
+    $hasConstanteValue = preg_match("/->value$/", $equal);
+    $hasConstanteName = preg_match("/->name$/", $equal);
+
     $constantUnitEnum = (
       constant(
-        $equal
+        preg_replace(
+          "/->(value|name)*$/", "", $equal
+        )
       )
     );
 
-
-    if( $constantUnitEnum instanceof UnitEnum ){
-      return new IEqualUnitEnum(
-        $constantUnitEnum->value
-      );
+    if($hasConstanteValue === 1){
+      if( $constantUnitEnum instanceof UnitEnum ){
+        return new IEqualUnitEnum(
+          $constantUnitEnum->value
+        );
+      }
+    } else
+    if($hasConstanteName === 1){
+      if( $constantUnitEnum instanceof UnitEnum ){
+        return new IEqualUnitEnum(
+          $constantUnitEnum->name
+        );
+      }      
     }
 
     return $equal;
