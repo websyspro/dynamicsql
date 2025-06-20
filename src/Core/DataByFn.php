@@ -201,7 +201,7 @@ extends AbstractByFn
       function(Compare $compare){
         $compare->equals->Mapper(
           function(DataList $equalItems){
-            if(preg_match("/null/i", $equalItems->Last()->value)){
+            if(preg_match("/null/i", $equalItems->Last()->value) === 1){
               $equalItems->Last()->value = strtoupper(
                 $equalItems->Last()->value
               );
@@ -224,8 +224,8 @@ extends AbstractByFn
       function(Compare $compare){
         $compare->equals->Mapper(
           function(DataList $equalItems){
-            $equalItems->Last()->value = strtoupper(
-              trim($equalItems->Last()->value, "\"'")
+            $equalItems->Last()->value = trim(
+              $equalItems->Last()->value, "\"'"
             );
 
             return DataList::Create([
