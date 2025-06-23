@@ -26,12 +26,14 @@ class EqualVar
   ): void {
     $this->statics->ForEach(
       function(mixed $value, string $key){
-        $this->value = preg_replace(
-          "/$key/", $value, preg_replace(
-            [ "/(^\\$)|(\"\])/", "/(\[\")|(\->)/", "/\\$/" ],
-            [ "", ".", "" ], $this->value
-          )
+        $keyStatic = preg_replace(
+          [ "/(^\\$)|(\"\])/", "/(\[\")|(\->)/", "/\\$/" ],
+          [ "", ".", "" ], $this->value
         );
+
+        if($key === $keyStatic){
+          $this->value = $value;
+        }
       }
     );
   }

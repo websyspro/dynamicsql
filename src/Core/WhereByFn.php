@@ -34,10 +34,10 @@ extends AbstractByFn
     $this->defineConditionsToEquals();
     $this->defineConditionsEntitys();
     $this->defineConditionsStaticss();
-    $this->defineConditionsUnitEnums();
-    $this->defineConditionsEvaluates();
-    $this->defineConditionsNullables();
-    $this->defineConditionsParseValues();
+    // $this->defineConditionsUnitEnums();
+    // $this->defineConditionsEvaluates();
+    // $this->defineConditionsNullables();
+    // $this->defineConditionsParseValues();
   }
 
   private function defineConditionsBlocks(
@@ -141,14 +141,10 @@ extends AbstractByFn
 
   private function defineConditionsStaticss(
   ): void {
-    $statics = (
-      $this->getStatics()
-    );
-
     $this->tokens->ForEach(
       fn(Equal $token) => (
         $token->defineStatics(
-          $statics
+          $this->getStatics()
         )
       )
     );
