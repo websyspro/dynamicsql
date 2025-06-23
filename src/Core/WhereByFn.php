@@ -34,10 +34,10 @@ extends AbstractByFn
     $this->defineConditionsToEquals();
     $this->defineConditionsEntitys();
     $this->defineConditionsStaticss();
-    // $this->defineConditionsUnitEnums();
-    // $this->defineConditionsEvaluates();
-    // $this->defineConditionsNullables();
-    // $this->defineConditionsParseValues();
+    $this->defineConditionsUnitEnums();
+    $this->defineConditionsEvaluates();
+    $this->defineConditionsNullables();
+    $this->defineConditionsParseValues();
   }
 
   private function defineConditionsBlocks(
