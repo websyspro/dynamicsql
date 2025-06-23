@@ -17,7 +17,7 @@ class Compare
   public function define(
   ): void {
     $this->equals = DataList::Create(
-      preg_split("/,/", $this->value, 2, (
+      preg_split("/,/", $this->value, -1, (
         PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY
       ))
     );
