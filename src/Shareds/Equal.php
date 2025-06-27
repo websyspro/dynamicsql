@@ -325,20 +325,20 @@ class Equal
     if( is_null( $equal ) === false ){
       if( preg_match("/(^NULL$)|(^\((.*?)\s*\)$)|(%)/", $equal->value )){
         if( preg_match( "/^NULL$/", $equal->value )){
-          return $compare === "==" ? "Is" : "Not";
+          return $compare->value === "==" ? "Is" : "Not";
         }
 
         if( preg_match( "/^\((.*?)\s*\)$/", $equal->value )){
-          return $compare === "==" ? "In" : "Not In";
+          return $compare->value === "==" ? "In" : "Not In";
         }
 
         if( preg_match( "/%/", $equal->value )){
-          return $compare === "==" ? "Like" : "Not Like";
+          return $compare->value === "==" ? "Like" : "Not Like";
         }
       }
     }
 
-    return preg_replace([ "/==/" ], [ "=" ], $compare);
+    return preg_replace([ "/==/" ], [ "=" ], $compare->value);
   }
 
   public function getCompare(
