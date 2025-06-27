@@ -7,8 +7,8 @@ use Websyspro\Commons\DataList;
 class EqualVar
 {
   public function __construct(
-    public mixed $value,
-    public DataList $statics
+    public DataList $statics,
+    public mixed $value
   ){
     $this->defineFilter();
     $this->defineStatics();
@@ -18,7 +18,9 @@ class EqualVar
   private function defineFilter(
   ): void {
     $this->value = preg_replace(
-      "/\{\\$(\w+)\}/", "\$$1", $this->value
+      ["/\{\\$(\w+)\}/",
+       "/(^\")|(^')|(\"$)|('$)/"
+      ], ["\$$1", ""], $this->value
     );
   }
 

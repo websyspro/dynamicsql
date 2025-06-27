@@ -13,7 +13,7 @@ class AbstractByFn
 {
   private bool $startBody = false;
   private int $brackets = 0;
-  private int $parentheses =0;
+  private int $parentheses = 0;
 
   public DataList $tokens;
 

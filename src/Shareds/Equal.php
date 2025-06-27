@@ -2,11 +2,13 @@
 
 namespace Websyspro\DynamicSql\Shareds;
 
+use UnitEnum;
 use Websyspro\Commons\DataList;
 use Websyspro\DynamicSql\Commons\Util;
 use Websyspro\DynamicSql\Enums\EqualType;
 use Websyspro\DynamicSql\Interfaces\IEqualUnitEnum;
 use Websyspro\Entity\Enums\ColumnType;
+use Websyspro\Entity\Interfaces\IColumnType;
 
 class Equal
 {
@@ -14,10 +16,19 @@ class Equal
   public EqualType $equalType;
 
   public function __construct(
-    public string $value
+    public string $value,
+    public DataList $parameters,
+    public DataList $statics
   ){
     $this->define();
     $this->defineEqualType();
+    $this->defineEntity();
+    $this->defineStatic();
+    $this->defineEnum();
+    $this->defineEvaluate();
+    $this->defineNulls();
+    $this->defineParse();
+    $this->defineClear();
   }
 
   private function define(
@@ -49,57 +60,151 @@ class Equal
     }
   }
 
+  public function defineEntityParse(
+    EqualField|EqualVar|IEqualUnitEnum|string $equal,
+    ItemParameter $itemParameter
+  ): EqualField|EqualVar|IEqualUnitEnum|string {
+    $column = $itemParameter->structureTable->Columns()->ListType()->Where(
+      fn(IColumnType $columnType) => (
+        "\${$itemParameter->name}->{$columnType->name}" === $equal
+      )
+    );
+
+    if( $column->Count() ){
+      return new EqualField(
+        $itemParameter->structureTable, $column->First()->name
+      );
+    }  
+
+    return $equal;    
+  }
+
   public function defineEntity(
-    DataList $parameters
   ): void {
-    if( $this->equalType === EqualType::Equal ){
-      $parameters->ForEach( fn(ItemParameter $itemParameter) => (
-        $this->equals->Mapper( fn(EqualField|EqualVar|IEqualUnitEnum|string $equal) => (
-          Util::fromEntity( $equal, $itemParameter )
-        ))
+    if($this->equalType === EqualType::Equal){
+      $this->parameters->ForEach(
+        fn(ItemParameter $itemParameter) => (
+          $this->equals->Mapper(
+            fn(EqualField|EqualVar|IEqualUnitEnum|string $equal) => (
+              $this->defineEntityParse($equal, $itemParameter)
+            )
+          )
+        )
+      );
+    }
+  }
+
+  public function defineStaticParse(
+    EqualField|EqualVar|IEqualUnitEnum|string $equal
+  ): EqualField|EqualVar|IEqualUnitEnum|string {
+    if( $equal instanceof EqualField ){
+      return $equal;
+    }
+
+    if( preg_match( "/\\$/", $equal ) === 0){
+      if( preg_match( "/(!=|==|>=|<=|<>)/i", $equal ) === 0){
+        return new EqualVar(
+          $this->statics, $equal
+        );
+      }
+
+      return $equal;
+    }
+
+    return new EqualVar(
+      $this->statics, $equal
+    );
+  }  
+
+  public function defineStatic(
+  ): void {
+    if($this->equalType === EqualType::Equal){
+      $this->equals->Mapper(fn(EqualField|EqualVar|IEqualUnitEnum|string $equal) => (
+        $this->defineStaticParse($equal)
       ));
     }
   }
 
-  public function defineStatics(
-    DataList $statics
+  public function defineEnumParse(
+    EqualField|EqualVar|IEqualUnitEnum|string $equal
+  ): EqualField|EqualVar|IEqualUnitEnum|string  {
+    if($equal instanceof EqualVar === false){
+      return $equal;
+    }
+
+    $hasConstante = preg_match(
+      "/^[A-Za-z_][A-Za-z0-9_]*::[A-Za-z_][A-Za-z0-9_]*(->(value|name))?$/", $equal->value
+    );
+
+    if($hasConstante === 0){
+      return $equal; 
+    }
+
+    $hasConstanteValue = preg_match("/->value$/", $equal->value);
+    $hasConstanteName = preg_match("/->name$/", $equal->value);
+
+    $constantUnitEnum = (
+      constant(
+        preg_replace(
+          "/->(value|name)*$/", "", $equal->value
+        )
+      )
+    );
+
+    if($hasConstanteValue === 1){
+      if($constantUnitEnum instanceof UnitEnum){
+        return new IEqualUnitEnum(
+          $constantUnitEnum->value
+        );
+      }
+    } else
+    if($hasConstanteName === 1){
+      if($constantUnitEnum instanceof UnitEnum){
+        return new IEqualUnitEnum(
+          $constantUnitEnum->name
+        );
+      }      
+    } else 
+    if($hasConstanteValue === 0 && $hasConstanteName === 0){
+      return new IEqualUnitEnum(
+        $constantUnitEnum->value
+      );
+    }
+
+    return $equal;
+  }  
+
+  public function defineEnum(
   ): void {
-    if( $this->equalType === EqualType::Equal ){
-      $this->equals->Mapper( fn(EqualField|EqualVar|IEqualUnitEnum|string $equal) => (
-        Util::fromStatics( $equal, $statics )
-      ));
+    if($this->equalType === EqualType::Equal){
+      $this->equals->Mapper(
+        fn(EqualField|EqualVar|IEqualUnitEnum|string $equal) => (
+          $this->defineEnumParse($equal)
+        )
+      );      
     }
   }
 
-  public function defineUnitEnums(
+  public function defineEvaluate(
   ): void {
-    if( $this->equalType === EqualType::Equal ){
-      $this->equals->Mapper( fn(EqualField|EqualVar|IEqualUnitEnum|string $equal) => (
-        Util::fromUnitEnum( $equal )
-      ));      
-    }
-  }
-
-  public function defineEvaluates(
-  ): void {
-    if( $this->equalType === EqualType::Equal ){
+    if($this->equalType === EqualType::Equal){
       $this->equals->ForEach(
         function(EqualField|EqualVar|IEqualUnitEnum|string $equal){
-          if( $equal instanceof EqualVar ){
-            $equal->value = EvaluateFromString::Execute( $equal->value );
+          if($equal instanceof EqualVar){
+            $equal->value = EvaluateFromString::Execute($equal->value);
           }
         }
       );
     }
   }
 
-  public function defineNullables(
+  public function defineNulls(
   ): void {
-    if( $this->equalType === EqualType::Equal ){
+    if($this->equalType === EqualType::Equal){
       $this->equals->ForEach(
         function(EqualField|EqualVar|IEqualUnitEnum|string $equal){
-          if( $equal instanceof EqualVar ){
-            if( preg_match( "/null/i", $equal->value )){
+          if($equal instanceof EqualVar){
+            if(preg_match( "/null/i", $equal->value)){
               $equal->value = strtoupper(
                 $equal->value
               );
@@ -123,7 +228,7 @@ class Equal
         || $equal instanceof IEqualUnitEnum;
   }
   
-  private function defineParse(
+  private function defineParseValues(
     ColumnType $columnType,
     string $value
   ): string {
@@ -158,9 +263,8 @@ class Equal
     return $value;
   }
 
-  public function defineParseValues(
+  public function defineParse(
   ): void {
-
     if( $this->equalType === EqualType::Equal ){
       [ $equalA, $_, $equalC ] = (
         $this->equals->All()
@@ -168,7 +272,7 @@ class Equal
 
       if($this->hasField($equalA)){
         if($this->hasParsed($equalC)){
-          $equalC->value = $this->defineParse(
+          $equalC->value = $this->defineParseValues(
             $equalA->columnType, $equalC->value
           );
         }
@@ -176,7 +280,7 @@ class Equal
 
       if($this->hasField($equalC)){
         if($this->hasParsed($equalA)){
-          $equalA->value = $this->defineParse(
+          $equalA->value = $this->defineParseValues(
             $equalC->columnType, $equalA->value
           );
         }
@@ -275,5 +379,11 @@ class Equal
 
       return null;
     }
+  }
+
+  public function defineClear(
+  ): void {
+    unset($this->parameters);
+    unset($this->statics);
   }
 }

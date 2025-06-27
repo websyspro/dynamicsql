@@ -22,46 +22,46 @@ class Util
     )->Mapper(fn(string $str) => trim($str));
   }
 
-  public static function fromEntity(
-    EqualField|EqualVar|IEqualUnitEnum|string $equal,
-    ItemParameter $itemParameter
-  ): EqualField|EqualVar|IEqualUnitEnum|string {
-    $column = $itemParameter->structureTable->Columns()->ListType()->Where(
-      fn(IColumnType $columnType) => "\${$itemParameter->name}->{$columnType->name}" === $equal
-    );
+  // public static function fromEntity(
+  //   EqualField|EqualVar|IEqualUnitEnum|string $equal,
+  //   ItemParameter $itemParameter
+  // ): EqualField|EqualVar|IEqualUnitEnum|string {
+  //   $column = $itemParameter->structureTable->Columns()->ListType()->Where(
+  //     fn(IColumnType $columnType) => "\${$itemParameter->name}->{$columnType->name}" === $equal
+  //   );
 
-    if( $column->Count() ){
-      return new EqualField(
-        $itemParameter->structureTable, 
-        $column->First()->name
-      );
-    }  
+  //   if( $column->Count() ){
+  //     return new EqualField(
+  //       $itemParameter->structureTable, 
+  //       $column->First()->name
+  //     );
+  //   }  
 
-    return $equal;
-  }
+  //   return $equal;
+  // }
 
-  public static function fromStatics(
-    EqualField|EqualVar|IEqualUnitEnum|string $equal,
-    DataList $static
-  ): EqualField|EqualVar|IEqualUnitEnum|string {
-    if( $equal instanceof EqualField ){
-      return $equal;
-    }
+  // public static function fromStatics(
+  //   EqualField|EqualVar|IEqualUnitEnum|string $equal,
+  //   DataList $static
+  // ): EqualField|EqualVar|IEqualUnitEnum|string {
+  //   if( $equal instanceof EqualField ){
+  //     return $equal;
+  //   }
 
-    if( preg_match( "/\\$/", $equal ) === 0){
-      if( preg_match( "/(!=|==|>=|<=|<>)/i", $equal ) === 0){
-        return new EqualVar(
-          $equal, $static
-        );
-      }
+  //   if( preg_match( "/\\$/", $equal ) === 0){
+  //     if( preg_match( "/(!=|==|>=|<=|<>)/i", $equal ) === 0){
+  //       return new EqualVar(
+  //         $equal, $static
+  //       );
+  //     }
 
-      return $equal;
-    }
+  //     return $equal;
+  //   }
 
-    return new EqualVar(
-      $equal, $static
-    );
-  }
+  //   return new EqualVar(
+  //     $equal, $static
+  //   );
+  // }
   
   public static function ParseBodyStaticsUnion(
     array $array,
@@ -89,47 +89,47 @@ class Util
     return $result;
   }
 
-  public static function fromUnitEnum(
-    EqualField|EqualVar|IEqualUnitEnum|string $equal
-  ): EqualField|EqualVar|IEqualUnitEnum|string  {
-    if( is_string( $equal ) === false ){
-      return $equal;
-    }
+  // public static function fromUnitEnum(
+  //   EqualField|EqualVar|IEqualUnitEnum|string $equal
+  // ): EqualField|EqualVar|IEqualUnitEnum|string  {
+  //   if( is_string( $equal ) === false ){
+  //     return $equal;
+  //   }
 
-    $hasConstante = preg_match(
-      "/^[A-Za-z_][A-Za-z0-9_]*::[A-Za-z_][A-Za-z0-9_]*->(value|name)*$/", $equal
-    );
+  //   $hasConstante = preg_match(
+  //     "/^[A-Za-z_][A-Za-z0-9_]*::[A-Za-z_][A-Za-z0-9_]*->(value|name)*$/", $equal
+  //   );
 
-    if( $hasConstante === 0 ){
-      return $equal; 
-    }
+  //   if( $hasConstante === 0 ){
+  //     return $equal; 
+  //   }
 
-    $hasConstanteValue = preg_match("/->value$/", $equal);
-    $hasConstanteName = preg_match("/->name$/", $equal);
+  //   $hasConstanteValue = preg_match("/->value$/", $equal);
+  //   $hasConstanteName = preg_match("/->name$/", $equal);
 
-    $constantUnitEnum = (
-      constant(
-        preg_replace(
-          "/->(value|name)*$/", "", $equal
-        )
-      )
-    );
+  //   $constantUnitEnum = (
+  //     constant(
+  //       preg_replace(
+  //         "/->(value|name)*$/", "", $equal
+  //       )
+  //     )
+  //   );
 
-    if($hasConstanteValue === 1){
-      if( $constantUnitEnum instanceof UnitEnum ){
-        return new IEqualUnitEnum(
-          $constantUnitEnum->value
-        );
-      }
-    } else
-    if($hasConstanteName === 1){
-      if( $constantUnitEnum instanceof UnitEnum ){
-        return new IEqualUnitEnum(
-          $constantUnitEnum->name
-        );
-      }      
-    }
+  //   if($hasConstanteValue === 1){
+  //     if( $constantUnitEnum instanceof UnitEnum ){
+  //       return new IEqualUnitEnum(
+  //         $constantUnitEnum->value
+  //       );
+  //     }
+  //   } else
+  //   if($hasConstanteName === 1){
+  //     if( $constantUnitEnum instanceof UnitEnum ){
+  //       return new IEqualUnitEnum(
+  //         $constantUnitEnum->name
+  //       );
+  //     }      
+  //   }
 
-    return $equal;
-  }
+  //   return $equal;
+  // }
 }

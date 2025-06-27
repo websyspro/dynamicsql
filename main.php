@@ -1,6 +1,6 @@
 <?php
 
-use Websyspro\DynamicSql\QueryBuild;
+use Websyspro\DynamicSql\Core\DataByFn;
 use Websyspro\DynamicSql\Test\Entitys\DocumentEntity;
 
 // $ids = [1, 2, 3];
@@ -17,6 +17,11 @@ enum EUserPerfil: int {
   case Administrador = 1;
 };
 
+enum EDeleted: int {
+  case Not = 0;
+  case Yes = 1;
+};
+
 // $searach = "VERONICA";
 
 $date = [
@@ -25,28 +30,44 @@ $date = [
   "State" => "C"
 ];
 
-$queryBuild = (
-  QueryBuild::Create(DocumentEntity::class)
-    ->Where(fn(DocumentEntity $d) => (
-      $d->CreatedAt <= $date["CreatedAtEnd"] &&
-      $d->Observations == "R$ 15,89"
-    ))
-);
+// $queryBuild = (
+//   QueryBuild::Create(DocumentEntity::class)
+//     ->Where(fn(DocumentEntity $d) => (
+//       $d->CreatedAt <= $date["CreatedAtEnd"] &&
+//       $d->Observations == "R$ 15,89"
+//     ))
+// );
 
-print_r($queryBuild->Get());
+// print_r($queryBuild->Get());
+
+// $whereByFn_ = WhereByFn::Create(
+//   fn(DocumentEntity $d) => (
+//     $d->Observations != strtoupper("VALOR%") &&
+//     $d->CreatedAt <= $date["CreatedAtEnd"] &&
+//     $d->Observations == "R$ 15,89" && (
+//       $d->Actived == true &&
+//       $d->DeletedAt == NULL
+//     ) || (
+//       $d->Deleted == EDeleted::Yes
+//     )
+//   )
+// );
+
+// print_r($whereByFn_->getCompare());
 
 // $negation = true;
 // $BoxIdCurrent = 123;
 
-// enum EBoxCurrent: int {
-//   case Simples = 1;
-//   case Administrador = 2;
-// }
 
+$dataByFn = DataByFn::Create(
+  fn(DocumentEntity $d) => [
+    $d->Observations == strtoupper("VALOR%"),
+    $d->Observations == "R$ 15,89",
+    $d->CreatedAt == "06/04/2023",
+    $d->DeletedAt == null,
+    $d->Actived == true,
+    $d->BoxId == 1
+  ]
+);
 
-// $dataByFn = DataByFn::Create(
-//   fn(DocumentEntity $d) => [
-//     $d->Actived = true,
-//     $d->BoxId = EBoxCurrent::Simples->value
-//   ]
-// )->getData();
+print_r($dataByFn->arrayFromFn());

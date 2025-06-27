@@ -32,12 +32,6 @@ extends AbstractByFn
     $this->defineConditionsNormalizeds();
     $this->defineConditionsNegations();
     $this->defineConditionsToEquals();
-    $this->defineConditionsEntitys();
-    $this->defineConditionsStaticss();
-    $this->defineConditionsUnitEnums();
-    $this->defineConditionsEvaluates();
-    $this->defineConditionsNullables();
-    $this->defineConditionsParseValues();
   }
 
   private function defineConditionsBlocks(
@@ -119,69 +113,11 @@ extends AbstractByFn
   ): void {
     $this->tokens->Mapper(
       fn(string $token) => (
-        new Equal($token)
-      )
-    );
-  }
-
-  private function defineConditionsEntitys(
-  ): void {
-    $parameters = (
-      $this->getParameters()
-    );
-
-    $this->tokens->ForEach(
-      fn(Equal $token) => (
-        $token->defineEntity(
-          $parameters
-        )
-      )
-    );
-  }
-
-  private function defineConditionsStaticss(
-  ): void {
-    $this->tokens->ForEach(
-      fn(Equal $token) => (
-        $token->defineStatics(
+        new Equal(
+          $token, 
+          $this->getParameters(),
           $this->getStatics()
         )
-      )
-    );
-  }
-
-  private function defineConditionsUnitEnums(
-  ): void {
-    $this->tokens->ForEach(
-      fn(Equal $token) => (
-        $token->defineUnitEnums()
-      )
-    );
-  }
-
-  private function defineConditionsEvaluates(
-  ): void {
-    $this->tokens->ForEach(
-      fn(Equal $token) => (
-        $token->defineEvaluates()
-      )
-    );
-  }
-
-  private function defineConditionsNullables(
-  ): void {
-    $this->tokens->ForEach(
-      fn(Equal $token) => (
-        $token->defineNullables()
-      )
-    );    
-  }
-
-  private function defineConditionsParseValues(
-  ): void {
-    $this->tokens->ForEach(
-      fn(Equal $token) => (
-        $token->defineParseValues()
       )
     );
   }

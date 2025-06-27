@@ -22,8 +22,6 @@ class EqualField
 
   public function ParseTable(
   ): void {
-    $this->structureTable;
-
     $this->table = (
       $this->structureTable->table
     );
