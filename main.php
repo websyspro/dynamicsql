@@ -1,6 +1,8 @@
 <?php
 
 use Websyspro\DynamicSql\Core\DataByFn;
+use Websyspro\DynamicSql\Core\WhereByFn;
+use Websyspro\DynamicSql\QueryBuild;
 use Websyspro\DynamicSql\Test\Entitys\DocumentEntity;
 
 // $ids = [1, 2, 3];
@@ -30,15 +32,17 @@ $date = [
   "State" => "C"
 ];
 
-// $queryBuild = (
-//   QueryBuild::Create(DocumentEntity::class)
-//     ->Where(fn(DocumentEntity $d) => (
-//       $d->CreatedAt <= $date["CreatedAtEnd"] &&
-//       $d->Observations == "R$ 15,89"
-//     ))
-// );
+$Observations = "Valor";
 
-// print_r($queryBuild->Get());
+$queryBuild = (
+  QueryBuild::Create(DocumentEntity::class)
+    ->Where(fn(DocumentEntity $d) => (
+      $d->CreatedAt <= $date["CreatedAtEnd"] &&
+      $d->Observations == "{$Observations}%"
+    ))
+);
+
+print_r($queryBuild);
 
 // $whereByFn_ = WhereByFn::Create(
 //   fn(DocumentEntity $d) => (
@@ -59,15 +63,14 @@ $date = [
 // $BoxIdCurrent = 123;
 
 
-$dataByFn = DataByFn::Create(
-  fn(DocumentEntity $d) => [
-    $d->Observations == strtoupper("VALOR%"),
-    $d->Observations == "R$ 15,89",
-    $d->CreatedAt == "06/04/2023",
-    $d->DeletedAt == null,
-    $d->Actived == true,
-    $d->BoxId == 1
-  ]
-);
+// $dataByFn = DataByFn::Create(
+//   fn(DocumentEntity $d) => [
+//     $d->Observations == "super-admin",
+//     $d->CreatedAt == "06/04/2023",
+//     $d->DeletedAt == null,
+//     $d->Actived == true,
+//     $d->BoxId == 1
+//   ]
+// );
 
-print_r($dataByFn->arrayFromFn());
+// print_r($dataByFn->arrayFromFn());

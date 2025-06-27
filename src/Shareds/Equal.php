@@ -101,11 +101,25 @@ class Equal
       return $equal;
     }
 
-    if( preg_match( "/\\$/", $equal ) === 0){
-      if( preg_match( "/(!=|==|>=|<=|<>)/i", $equal ) === 0){
-        return new EqualVar(
-          $this->statics, $equal
+    if( preg_match( "/\\$/", $equal ) === 1){
+      if( preg_match( "/(and|or)/i", $equal ) === 0){
+        $hasStatic = $this->statics->Copy()->WhereByKey(
+          fn(string $key) => preg_match("/(\{\\$$key\})|(\\$$key)/", $equal)
         );
+
+        if($hasStatic->Exist()){
+          $hasStatic->Mapper(
+            fn(mixed $txt, string $key) => (
+              new EqualVar(
+                $this->statics, preg_replace(
+                  "/(\{\\$$key\})|(\\$$key)/", $txt, $equal
+                )
+              )
+            )
+          );
+
+          return $hasStatic->First();          
+        }
       }
 
       return $equal;
