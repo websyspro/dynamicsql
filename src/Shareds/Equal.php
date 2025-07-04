@@ -307,7 +307,7 @@ class Equal
     ColumnType|null $columnType,
     string|null $value
   ): string {
-    if($value === null || $columnType !== ColumnType::Datetime){
+    if($value === null || $columnType !== ColumnType::datetime){
       return "{$equal->table}.{$equal->name}";
     }
 
