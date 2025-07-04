@@ -15,7 +15,7 @@ class EvaluateFromString
 		 "*" => 6,  "/" => 6,   "%" => 6
 	];
 
-  public static function Execute(
+  public static function execute(
 		mixed $code
 	): mixed {
 		if(preg_match('/^\s*\w+\s*\(/', $code) === 0){
@@ -23,7 +23,7 @@ class EvaluateFromString
 		}
 
     $tokens = (
-			static::NormalizeTokens(
+			EvaluateFromString::normalizeTokens(
 				array_slice(
 					token_get_all(
 						"<?php {$code}"
@@ -33,68 +33,70 @@ class EvaluateFromString
 		);
     
 		$i = 0;
-    return static::evaluate(
-			static::ParseExpression(
-				$tokens, $i
+    return (
+			EvaluateFromString::evaluate(
+				EvaluateFromString::parseExpression(
+					$tokens, $i
+				)
 			)
 		);
   }
 
-	private static function NormalizeTokens(
+	private static function normalizeTokens(
 		array $tokens
 	): array {
 		$combined = [];
 		$i = 0;
 
-		while( $i < count( $tokens )){
-			$token = $tokens[ $i ];
+		while($i < count($tokens)){
+			$token = $tokens[$i];
 
-			$next = $tokens[ $i + 1 ] ?? null;
-			$next2 = $tokens[ $i + 2 ] ?? null;
+			$next = $tokens[$i + 1] ?? null;
+			$next2 = $tokens[$i + 2] ?? null;
 
-			if( $token === "=" && $next === "=" && $next2 === "=" ){
+			if($token === "=" && $next === "=" && $next2 === "="){
 				$combined[] = "===";
 				$i += 3;
 				continue;
 			}
 
-			if( $token === "!" && $next === "=" && $next2 === "=" ){
+			if($token === "!" && $next === "=" && $next2 === "="){
 				$combined[] = "!==";
 				$i += 3;
 				continue;
 			}
 
-			if( $token === "=" && $next === "=" ){
+			if($token === "=" && $next === "="){
 				$combined[] = "==";
 				$i += 2;
 				continue;
 			}
 
-			if( $token === "!" && $next === "=" ){
+			if($token === "!" && $next === "="){
 				$combined[] = "!=";
 				$i += 2;
 				continue;
 			}
 
-			if( $token === "<" && $next === "=" ){
+			if($token === "<" && $next === "="){
 				$combined[] = "<=";
 				$i += 2;
 				continue;
 			}
 
-			if( $token === ">" && $next === "=" ){
+			if($token === ">" && $next === "="){
 				$combined[] = ">=";
 				$i += 2;
 				continue;
 			}
 
-			if ($token === "&" && $next === "&") {
+			if($token === "&" && $next === "&"){
 				$combined[] = "&&";
 				$i += 2;
 				continue;
 			}
 
-			if ($token === "|" && $next === "|") {
+			if($token === "|" && $next === "|"){
 				$combined[] = "||";
 				$i += 2;
 				continue;
@@ -108,11 +110,11 @@ class EvaluateFromString
 	}
 
 
-  private static function SkipWhitespace(
+  private static function skipWhitespace(
 		&$tokens, &$i
 	): void {
-    while( $i < count( $tokens )){
-      if( is_array( $tokens[$i]) && $tokens[$i][0] === T_WHITESPACE ){
+    while($i < count($tokens)){
+      if(is_array($tokens[$i]) && $tokens[$i][0] === T_WHITESPACE){
         $i++;
       } else {
         break;
@@ -120,36 +122,40 @@ class EvaluateFromString
     }
   }
 
-  private static function GetPrecedence(
+  private static function getPrecedence(
 		string $precedenceIndex
 	): int {
-    return static::$precedenceMap[
-			$precedenceIndex
-		] ?? -1;
+    return (
+			EvaluateFromString::$precedenceMap[
+				$precedenceIndex
+			] ?? -1
+		);
   }
 
-  private static function ParseExpression(
+  private static function parseExpression(
 		array &$tokens,
 		int &$i,
 		int $minPrecedence = 0
 	): mixed {
-    $left = static::ParsePrimary(
+    $left = EvaluateFromString::parsePrimary(
 			$tokens, $i
 		);
 
-    while( $i < count( $tokens )){
+    while($i < count($tokens)){
 			$token = $tokens[$i];
 			$op = is_array($token) ? $token[1] : $token;
 			$op = trim($op);
 
-			$precedence = static::getPrecedence($op);
-			if( $precedence < $minPrecedence ){
+			$precedence = EvaluateFromString::getPrecedence($op);
+			if($precedence < $minPrecedence){
 				break;
 			}
 
 			$i++;
-			$right = static::ParseExpression(
-				$tokens, $i, $precedence + 1
+			$right = (
+				EvaluateFromString::parseExpression(
+					$tokens, $i, $precedence + 1
+				)
 			);
 
 			$left = [
@@ -162,7 +168,7 @@ class EvaluateFromString
     return $left;
   }
 
-  private static function ParsePrimary(
+  private static function parsePrimary(
 		array &$tokens, 
 		int &$i
 	) {
@@ -170,7 +176,7 @@ class EvaluateFromString
 
 		if (is_array($token) && $token[0] === T_FN) {
 			$i++;
-			static::SkipWhitespace(
+			EvaluateFromString::skipWhitespace(
 				$tokens, $i
 			);
 
@@ -192,27 +198,27 @@ class EvaluateFromString
 				}
 			}
 
-			static::SkipWhitespace($tokens, $i);
+			EvaluateFromString::skipWhitespace($tokens, $i);
 			if ($tokens[$i] === '=>') {
 				$i++;
-				$body = static::ParseExpression($tokens, $i);
+				$body = EvaluateFromString::parseExpression($tokens, $i);
 				return ['fn' => ['params' => $params, 'body' => $body]];
 			}
 		}
 
 		if (is_array($token) && $token[0] === T_ARRAY) {
 			$i++;
-			static::SkipWhitespace($tokens, $i);
+			EvaluateFromString::skipWhitespace($tokens, $i);
 			if ($tokens[$i] === '(') {
 				$i++;
-				$items = static::ParseArrayItems($tokens, $i);
+				$items = EvaluateFromString::parseArrayItems($tokens, $i);
 				return ['array' => $items];
 			}
 		}
 
 		if ($token === '[') {
 			$i++;
-			$items = static::ParseArrayItems($tokens, $i, ']');
+			$items = EvaluateFromString::parseArrayItems($tokens, $i, ']');
 			return ['array' => $items];
 		}
 
@@ -233,10 +239,10 @@ class EvaluateFromString
 
 				case T_STRING:
 					$i++;
-					static::skipWhitespace($tokens, $i);
+					EvaluateFromString::skipWhitespace($tokens, $i);
 					if ($tokens[$i] === '(') {
 							$i++;
-							$args = static::parseArguments($tokens, $i);
+							$args = EvaluateFromString::parseArguments($tokens, $i);
 							return ['name' => $token[1], 'args' => $args];
 					}
 					return $token[1];
@@ -249,7 +255,7 @@ class EvaluateFromString
 
 		if ($token === '(') {
 			$i++;
-			$expr = static::ParseExpression($tokens, $i);
+			$expr = EvaluateFromString::parseExpression($tokens, $i);
 			if ($tokens[$i] === ')') {
 					$i++;
 			}
@@ -267,7 +273,7 @@ class EvaluateFromString
 					$i++;
 					break;
 			}
-			$args[] = static::ParseExpression($tokens, $i);
+			$args[] = EvaluateFromString::parseExpression($tokens, $i);
 			if ($tokens[$i] === ',') {
 					$i++;
 			}
@@ -275,19 +281,19 @@ class EvaluateFromString
 		return $args;
   }
 
-  private static function ParseArrayItems(
+  private static function parseArrayItems(
 		array &$tokens, 
 		int &$i,
 		string $end = ')'
 	): array {
 		$items = [];
-		while( $i < count( $tokens )){
+		while( $i < count($tokens)){
 			if ($tokens[$i] === $end) {
 				$i++;
 				break;
 			}
 			
-			$items[] = static::ParseExpression(
+			$items[] = EvaluateFromString::parseExpression(
 				$tokens, $i
 			);
 
@@ -312,8 +318,8 @@ class EvaluateFromString
 			}
 
 			if (isset($node['op'])) {
-				$left = static::evaluate($node['left'], $scope);
-				$right = static::evaluate($node['right'], $scope);
+				$left = EvaluateFromString::evaluate($node['left'], $scope);
+				$right = EvaluateFromString::evaluate($node['right'], $scope);
 				return match( $node[ "op" ]){
 					'==' => $left == $right,
 					'!=' => $left != $right,
@@ -338,12 +344,12 @@ class EvaluateFromString
 			}
 
 			if (isset($node['array'])) {
-				return array_map(fn($item) => static::evaluate($item, $scope), $node['array']);
+				return array_map(fn($item) => EvaluateFromString::evaluate($item, $scope), $node['array']);
 			}
 
 			if (isset($node['name']) && isset($node['args'])) {
 				$fn = $node['name'];
-				$args = array_map(fn($arg) => static::evaluate($arg, $scope), $node['args']);
+				$args = array_map(fn($arg) => EvaluateFromString::evaluate($arg, $scope), $node['args']);
 				if( function_exists( $fn )) {
 						return $fn(...$args);
 				}
@@ -359,7 +365,7 @@ class EvaluateFromString
 					foreach ($node['fn']['params'] as $i => $param) {
 							$newScope[$param] = $args[$i] ?? null;
 					}
-					return static::evaluate($node['fn']['body'], $newScope);
+					return EvaluateFromString::evaluate($node['fn']['body'], $newScope);
 				};
 			}
 		}

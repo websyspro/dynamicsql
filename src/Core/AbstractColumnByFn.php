@@ -23,33 +23,33 @@ extends AbstractByFn
   
   private function defineColumnsToString(
   ): void {
-    $this->tokens->Mapper(fn(Token $token) => $token->getString())->Where(
+    $this->tokens->mapper(fn(Token $token) => $token->getString())->where(
       fn(string $token) => empty(trim($token)) === false
     );
   }
 
   private function defineColumnsNormalizeds(
   ): void {
-    $this->tokens->Mapper(fn(string $token) => preg_replace( "/(\r?\n)/", "", $token ));
-    $this->tokens->Mapper(fn(string $token) => preg_replace( "/\s{2,}/", " ", $token ));
-    $this->tokens->Mapper(fn(string $token) => preg_replace( "/(^\s*)|(\s*$)/", "", $token ));
-    $this->tokens->Mapper(fn(string $token) => preg_replace( "/(\")|(\')/", "", $token ));
+    $this->tokens->mapper(fn(string $token) => preg_replace( "/(\r?\n)/", "", $token ));
+    $this->tokens->mapper(fn(string $token) => preg_replace( "/\s{2,}/", " ", $token ));
+    $this->tokens->mapper(fn(string $token) => preg_replace( "/(^\s*)|(\s*$)/", "", $token ));
+    $this->tokens->mapper(fn(string $token) => preg_replace( "/(\")|(\')/", "", $token ));
   }
 
   private function defineColumnsSplits(
   ): void {
-    $this->tokens = DataList::Create(
-      explode(",", $this->tokens->JoinNotSpace())
+    $this->tokens = DataList::create(
+      explode(",", $this->tokens->joinNotSpace())
     );
   }
 
   private function defineColumnsEntitys(
   ): void {
-    $this->getParameters()->ForEach(
+    $this->getParameters()->forEach(
       fn(ItemParameter $itemParameter) => (
-        $itemParameter->structureTable->Columns()->ListType()->ForEach(
+        $itemParameter->structureTable->columns()->listType()->forEach(
           fn(IColumnType $columnType) => (
-            $this->tokens->Mapper(
+            $this->tokens->mapper(
               fn(string $token) => preg_replace(
                 "/\\$$itemParameter->name->$columnType->name/", 
                 "{$itemParameter->structureTable->table}.{$columnType->name}", $token 
@@ -63,7 +63,7 @@ extends AbstractByFn
 
   private function defineColumnsCreate(
   ): void {
-    $this->tokens->Mapper(
+    $this->tokens->mapper(
       fn(string $token) => new Column($token) 
     );
   }  

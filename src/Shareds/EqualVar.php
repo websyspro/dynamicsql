@@ -26,7 +26,7 @@ class EqualVar
 
   private function defineStatics(
   ): void {
-    $this->statics->ForEach(
+    $this->statics->forEach(
       function(mixed $value, string $key){
         $keyStatic = preg_replace(
           [ "/(^\\$)|(\"\])/", "/(\[\")|(\->)/", "/\\$/" ],

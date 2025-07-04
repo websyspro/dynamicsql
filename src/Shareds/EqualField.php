@@ -15,26 +15,26 @@ class EqualField
     public StructureTable $structureTable,
     public string $name
   ){
-    $this->ParseTable();
-    $this->ParseType();
-    $this->ParseClear();
+    $this->parseTable();
+    $this->parseType();
+    $this->parseClear();
   }
 
-  public function ParseTable(
+  public function parseTable(
   ): void {
     $this->table = (
       $this->structureTable->table
     );
   }
 
-  public function ParseType(
+  public function parseType(
   ): void {
-    $this->columnType = $this->structureTable->Columns()->List()->Where(
+    $this->columnType = $this->structureTable->columns()->list()->where(
       fn(IProperties $properties) => $properties->name === $this->name
-    )->First()->items->First()->columnType;
+    )->first()->items->first()->columnType;
   }
 
-  public function ParseClear(
+  public function parseClear(
   ): void {
     unset($this->structureTable);
   }

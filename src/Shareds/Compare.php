@@ -16,18 +16,18 @@ class Compare
   
   public function define(
   ): void {
-    $this->equals = DataList::Create(
+    $this->equals = DataList::create(
       preg_split("/,/", $this->value, -1, (
         PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY
       ))
     );
     
-    $this->equals->Mapper(
-      fn(string $equal) => DataList::Create(
+    $this->equals->mapper(
+      fn(string $equal) => DataList::create(
         preg_split("/=/", trim($equal), 2, (
           PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY
         ))
-      )->Mapper(fn(string $equalItem) => trim($equalItem))
+      )->mapper(fn(string $equalItem) => trim($equalItem))
     );    
   }
 }

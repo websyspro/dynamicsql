@@ -27,9 +27,9 @@ class AbstractByFn
 
   public function getParameters(
   ): DataList {
-    return DataList::Create(
-      Reflect::FN($this->fn)->getParameters()
-    )->Mapper(
+    return DataList::create(
+      Reflect::fn($this->fn)->getParameters()
+    )->mapper(
       fn(ReflectionParameter $rp) => (
         new ItemParameter(
           $rp->getType()->getName(), 
@@ -41,9 +41,9 @@ class AbstractByFn
 
   public function getStatics(
   ): DataList {
-    return DataList::Create(
-      Util::ParseBodyStaticsUnion(
-        Reflect::FN(
+    return DataList::create(
+      Util::parseBodyStaticsUnion(
+        Reflect::fn(
           $this->fn
         )->getStaticVariables()
       )
@@ -53,7 +53,7 @@ class AbstractByFn
   private function defineTokens(
   ): void {
     $this->tokens = (
-      $this->Load($this->fn)
+      $this->load($this->fn)
     );
   }
 
@@ -64,18 +64,18 @@ class AbstractByFn
     unset($this->brackets);
   }
 
-  private function GetTokenAll(
+  private function getTokenAll(
     string $bodyStr
   ): DataList {
-    return DataList::Create(
+    return DataList::create(
       token_get_all( "<?php {$bodyStr}" )
-    )->Mapper(fn(array|string $token) => new Token($token))->Slice(1);
+    )->mapper(fn(array|string $token) => new Token($token))->slice(1);
   }  
 
-  private function DefineStartAndEndBody(
+  private function defineStartAndEndBody(
     DataList $reflectFnBodyTokens
   ): DataList {
-    $reflectFnBodyTokens->Where(
+    $reflectFnBodyTokens->where(
       function(Token $token){
         if( $token->type === T_DOUBLE_ARROW ){
           $this->startBody = true;
@@ -85,7 +85,7 @@ class AbstractByFn
       }
     );
 
-    $reflectFnBodyTokens->Where(
+    $reflectFnBodyTokens->where(
       function(Token $token){
         if( $token->getString() === "(" ) $this->parentheses++;
         if( $token->getString() === "[" ) $this->brackets++; 
@@ -112,41 +112,43 @@ class AbstractByFn
       }
     );
 
-    return $reflectFnBodyTokens->Slice(1);
+    return $reflectFnBodyTokens->slice(1);
   }
 
-  private function DropSpacesExtras(
+  private function dropSpacesExtras(
     DataList $reflectFnBodyTokens
   ): DataList {
-    return $this->GetTokenAll(
-      preg_replace([
-        "/(^\s*)|(\s*$)/",
-        "/(^\()|(\)$)|(^\[)|(\]$)/",
-        "/(^\s*)|(\s*$)/" 
-      ], "", 
-        $reflectFnBodyTokens->Mapper(
-          fn(Token $token) => $token->getString()
-        )->JoinNotSpace()
+    return (
+      $this->getTokenAll(
+        preg_replace([
+          "/(^\s*)|(\s*$)/",
+          "/(^\()|(\)$)|(^\[)|(\]$)/",
+          "/(^\s*)|(\s*$)/" 
+        ], "", 
+          $reflectFnBodyTokens->mapper(
+            fn(Token $token) => $token->getString()
+          )->joinNotSpace()
+        )
       )
     );
   }
 
-  private function Load(
+  private function load(
     callable $fn
   ): DataList {
     $reflectFn = (
-      Reflect::FN($fn)
+      Reflect::fn($fn)
     );
     
     if( $reflectFn ){
       $reflectFNLines = (
-        DataList::Create(
+        DataList::create(
           file( $reflectFn->getFileName())
         ) 
       );
 
       $reflectFnBody = (
-        $reflectFNLines->Slice(
+        $reflectFNLines->slice(
           $reflectFn->getStartLine() - 1, (
             $reflectFn->getEndLine() - 
             $reflectFn->getStartLine() + 1
@@ -154,13 +156,13 @@ class AbstractByFn
         )
       );
 
-      $reflectFnBodyTokens = $this->GetTokenAll(
-        $reflectFnBody->JoinWithSpace()
+      $reflectFnBodyTokens = $this->getTokenAll(
+        $reflectFnBody->joinWithSpace()
       );
 
       $reflectFnBodyTokens = (
-        $this->DropSpacesExtras(
-          $this->DefineStartAndEndBody(
+        $this->dropSpacesExtras(
+          $this->defineStartAndEndBody(
             $reflectFnBodyTokens
           )
         )
@@ -173,7 +175,7 @@ class AbstractByFn
   public function defines(
   ): void {}
 
-  public static function Create(
+  public static function create(
     callable $fn
   ): static {
     return new static($fn);

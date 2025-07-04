@@ -33,13 +33,13 @@ class Equal
 
   private function define(
   ): void {
-    $this->equals = DataList::Create(
+    $this->equals = DataList::create(
       preg_split("/(!=|==|>=|<=|<>)/", $this->value, 2, (
         PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY
       ))
     );
     
-    $this->equals->Mapper(
+    $this->equals->mapper(
       fn(string $equal) => trim($equal)
     );
   }
@@ -64,15 +64,15 @@ class Equal
     EqualField|EqualVar|IEqualUnitEnum|string $equal,
     ItemParameter $itemParameter
   ): EqualField|EqualVar|IEqualUnitEnum|string {
-    $column = $itemParameter->structureTable->Columns()->ListType()->Where(
+    $column = $itemParameter->structureTable->columns()->listType()->where(
       fn(IColumnType $columnType) => (
         "\${$itemParameter->name}->{$columnType->name}" === $equal
       )
     );
 
-    if( $column->Count() ){
+    if( $column->count() ){
       return new EqualField(
-        $itemParameter->structureTable, $column->First()->name
+        $itemParameter->structureTable, $column->first()->name
       );
     }  
 
@@ -82,9 +82,9 @@ class Equal
   public function defineEntity(
   ): void {
     if($this->equalType === EqualType::Equal){
-      $this->parameters->ForEach(
+      $this->parameters->forEach(
         fn(ItemParameter $itemParameter) => (
-          $this->equals->Mapper(
+          $this->equals->mapper(
             fn(EqualField|EqualVar|IEqualUnitEnum|string $equal) => (
               $this->defineEntityParse($equal, $itemParameter)
             )
@@ -103,12 +103,12 @@ class Equal
 
     if(preg_match("/\\$/", $equal) === 1){
       if(preg_match( "/(!=|==|>=|<=|<>)/i", $equal) === 0){
-        $hasStatic = $this->statics->Copy()->WhereByKey(
+        $hasStatic = $this->statics->Copy()->whereByKey(
           fn(string $key) => preg_match("/(\{\\$$key\})|(\\$$key)/", $equal)
         );
 
-        if($hasStatic->Exist()){
-          $hasStatic->Mapper(
+        if($hasStatic->exist()){
+          $hasStatic->mapper(
             fn(mixed $txt, string $key) => (
               new EqualVar(
                 $this->statics, preg_replace(
@@ -118,7 +118,7 @@ class Equal
             )
           );
 
-          return $hasStatic->First();          
+          return $hasStatic->first();          
         }
       }
 
@@ -133,7 +133,7 @@ class Equal
   public function defineStatic(
   ): void {
     if($this->equalType === EqualType::Equal){
-      $this->equals->Mapper(fn(EqualField|EqualVar|IEqualUnitEnum|string $equal) => (
+      $this->equals->mapper(fn(EqualField|EqualVar|IEqualUnitEnum|string $equal) => (
         $this->defineStaticParse($equal)
       ));
     }
@@ -191,7 +191,7 @@ class Equal
   public function defineEnum(
   ): void {
     if($this->equalType === EqualType::Equal){
-      $this->equals->Mapper(
+      $this->equals->mapper(
         fn(EqualField|EqualVar|IEqualUnitEnum|string $equal) => (
           $this->defineEnumParse($equal)
         )
@@ -202,10 +202,10 @@ class Equal
   public function defineEvaluate(
   ): void {
     if($this->equalType === EqualType::Equal){
-      $this->equals->ForEach(
+      $this->equals->forEach(
         function(EqualField|EqualVar|IEqualUnitEnum|string $equal){
           if($equal instanceof EqualVar){
-            $equal->value = EvaluateFromString::Execute($equal->value);
+            $equal->value = EvaluateFromString::execute($equal->value);
           }
         }
       );
@@ -215,7 +215,7 @@ class Equal
   public function defineNulls(
   ): void {
     if($this->equalType === EqualType::Equal){
-      $this->equals->ForEach(
+      $this->equals->forEach(
         function(EqualField|EqualVar|IEqualUnitEnum|string $equal){
           if($equal instanceof EqualVar){
             if(preg_match( "/null/i", $equal->value)){
@@ -253,18 +253,18 @@ class Equal
     if( $hasArray ){
       $value = (
         sprintf("(%s)", (
-          Util::strToArray($value)->Mapper(
+          Util::strToArray($value)->mapper(
             fn(string $str) => (
-              $columnType->Encode(
+              $columnType->encode(
                 $str
               )
             )
-          )->JoinWithComma()
+          )->joinWithComma()
         ))
       );
     } else {
       $value = (
-        $columnType->Encode(
+        $columnType->encode(
           preg_replace(
             "/(^\")|(\"$)|(^')|('$)/", "", (
               $value
@@ -281,7 +281,7 @@ class Equal
   ): void {
     if( $this->equalType === EqualType::Equal ){
       [ $equalA, $_, $equalC ] = (
-        $this->equals->All()
+        $this->equals->all()
       ); 
 
       if($this->hasField($equalA)){
@@ -347,7 +347,7 @@ class Equal
       return $this->equals->First(); 
     } else {
       [ $equalA, $equalB, $equalC ] = (
-        $this->equals->All()
+        $this->equals->all()
       );
 
       if($this->hasField($equalA)){

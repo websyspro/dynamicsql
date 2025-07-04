@@ -36,7 +36,7 @@ extends AbstractByFn
 
   private function defineConditionsBlocks(
   ): void {
-    $this->tokens->ForEach(
+    $this->tokens->forEach(
       function(Token $token){
         if( in_array($token->getString(), $this->equals )){
           $this->isEquals = true;
@@ -74,29 +74,29 @@ extends AbstractByFn
 
   private function defineConditionsSplits(
   ): void {
-    $this->tokens = DataList::Create(
+    $this->tokens = DataList::create(
       preg_split( "/(\s{1,}&&\s{1,})|(\s{1,}and\s{1,})|(\s{1,}\|\|\s{1,})|(\s{1,}or\s{1,})|(__\()|(\)__)/i", (
-        $this->tokens->Mapper(fn(Token $token) => $token->getString())->JoinNotSpace()
+        $this->tokens->Mapper(fn(Token $token) => $token->getString())->joinNotSpace()
       ), -1, ( PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY ))
-    )->Where(fn(string $token) => empty( trim( $token )) === false);
+    )->where(fn(string $token) => empty( trim( $token )) === false);
   }
 
   private function defineConditionsNormalizeds(    
   ): void {
-    $this->tokens->Mapper(fn(string $token) => preg_replace( "/(\r?\n)/", "", $token ));
-    $this->tokens->Mapper(fn(string $token) => preg_replace( "/\s{2,}/", " ", $token ));
-    $this->tokens->Mapper(fn(string $token) => preg_replace( "/(^\s*)|(\s*$)/", "", $token ));
-    $this->tokens->Mapper(fn(string $token) => preg_replace( "/^__\($/", "(", $token ));
-    $this->tokens->Mapper(fn(string $token) => preg_replace( "/^\)__$/", ")", $token ));
-    $this->tokens->Mapper(fn(string $token) => preg_replace( "/(^&&$)|(^and$)/i", "And", $token ));
-    $this->tokens->Mapper(fn(string $token) => preg_replace( "/(^\|\|$)|(^or$)/i", "Or", $token ));
-    $this->tokens->Mapper(fn(string $token) => preg_replace( "/!==/i", "!=", $token ));
-    $this->tokens->Mapper(fn(string $token) => preg_replace( "/(===|==)/i", "==", $token ));
+    $this->tokens->mapper(fn(string $token) => preg_replace( "/(\r?\n)/", "", $token ));
+    $this->tokens->mapper(fn(string $token) => preg_replace( "/\s{2,}/", " ", $token ));
+    $this->tokens->mapper(fn(string $token) => preg_replace( "/(^\s*)|(\s*$)/", "", $token ));
+    $this->tokens->mapper(fn(string $token) => preg_replace( "/^__\($/", "(", $token ));
+    $this->tokens->mapper(fn(string $token) => preg_replace( "/^\)__$/", ")", $token ));
+    $this->tokens->mapper(fn(string $token) => preg_replace( "/(^&&$)|(^and$)/i", "And", $token ));
+    $this->tokens->mapper(fn(string $token) => preg_replace( "/(^\|\|$)|(^or$)/i", "Or", $token ));
+    $this->tokens->mapper(fn(string $token) => preg_replace( "/!==/i", "!=", $token ));
+    $this->tokens->mapper(fn(string $token) => preg_replace( "/(===|==)/i", "==", $token ));
   }
 
   private function defineConditionsNegations(
   ): void {
-    $this->tokens->Mapper(
+    $this->tokens->mapper(
       function(string $token){
         if(preg_match("/^!\\$\.*/", $token)){
           return sprintf( "%s == false", (
@@ -111,7 +111,7 @@ extends AbstractByFn
 
   private function defineConditionsToEquals(
   ): void {
-    $this->tokens->Mapper(
+    $this->tokens->mapper(
       fn(string $token) => (
         new Equal(
           $token, 
@@ -125,19 +125,19 @@ extends AbstractByFn
   public function getCompare(
   ): ICompare {
     return new ICompare(
-      DataList::Create(
-        $this->getParameters()->Mapper(
+      DataList::create(
+        $this->getParameters()->mapper(
           fn( ItemParameter $itemParameter ) => (
             $itemParameter->structureTable->table
           )
-        )->All()
+        )->all()
       ),
-      DataList::Create([
-        $this->tokens->Copy()->Mapper(
+      DataList::create([
+        $this->tokens->copy()->mapper(
           function(Equal $token){
             return $token->getCompare();
           }
-        )->JoinWithSpace()
+        )->joinWithSpace()
       ])
     );
   }

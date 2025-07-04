@@ -64,7 +64,7 @@ class Column
     unset($this->column);
   }
 
-  public function ToString(
+  public function toString(
   ): string {
     $name = isset( $this->method )
       ? sprintf( "%s(%s.%s)", ...[

@@ -2,22 +2,22 @@
 
 namespace Websyspro\DynamicSql;
 
-function SumField(
+function sumField(
   string $column
 ){}
 
-function CountField(
+function countField(
   string $column
 ){}
 
-function AvgField(
+function avgField(
   string $column
 ){}
 
-function MinField(
+function minField(
   string $column
 ){}
 
-function MaxField(
+function maxField(
   string $column
 ){}

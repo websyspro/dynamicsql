@@ -33,7 +33,7 @@ class QueryBuild
     )->table;
   }
 
-  private function SetProps(
+  private function setProps(
     string $name,
     mixed $prop
   ): QueryBuild {
@@ -41,90 +41,90 @@ class QueryBuild
     return $this;
   }
 
-  public function Select(
+  public function select(
     callable $fn
   ): QueryBuild {
-    return $this->SetProps(
-      "select", SelectByFn::Create($fn)
+    return $this->setProps(
+      "select", SelectByFn::create($fn)
     );
   }
 
-  public function Where(
+  public function where(
     callable $fn
   ): QueryBuild {
-    return $this->SetProps(
-      "where", WhereByFn::Create($fn)
+    return $this->setProps(
+      "where", WhereByFn::create($fn)
     );
   }
 
-  public function GroupBy(
+  public function groupBy(
     callable $fn
   ): QueryBuild {
-    return $this->SetProps(
-      "groupBy", GroupByFn::Create($fn)
+    return $this->setProps(
+      "groupBy", GroupByFn::create($fn)
     );
   }
 
-  public function OrderByAsc(
+  public function orderByAsc(
     callable $fn
   ): QueryBuild {
-    return $this->SetProps(
-      "orderByAsc", OrderByAscByFn::Create($fn)
+    return $this->setProps(
+      "orderByAsc", OrderByAscByFn::create($fn)
     );
   }
 
-  public function OrderByDesc(
+  public function orderByDesc(
     callable $fn
   ): QueryBuild {
-    return $this->SetProps(
-      "orderByDesc", OrderByDescByFn::Create($fn)
+    return $this->setProps(
+      "orderByDesc", OrderByDescByFn::create($fn)
     );
   }
 
-  private function GetColumns(
+  private function getColumns(
   ): string {
     if(isset($this->select) === false){
       return "*";
     }
 
-    if($this->select->tokens->Count() === 0){
+    if($this->select->tokens->count() === 0){
       return "*";  
     }
 
-    return $this->select->tokens->Mapper(
-      fn(Column $column ) => $column->ToString()
+    return $this->select->tokens->mapper(
+      fn(Column $column ) => $column->toString()
     )->JoinWithComma();
   }
 
-  private function GetFroms(
+  private function getFroms(
   ): string {
     if(isset($this->where) === false){
       return $this->table;
     }
 
     $compare = $this->where->getCompare();
-    if( $compare->froms->Count() === 0 ){
+    if( $compare->froms->count() === 0 ){
       return $this->table;
     }
 
-    return $compare->froms->JoinWithComma();
+    return $compare->froms->joinWithComma();
   }
 
-  private function GetWheres(
+  private function getWheres(
   ): string {
     if(isset($this->where) === false){
       return "1=1";
     }
 
     $compare = $this->where->getCompare();
-    if( $compare->conditions->Count() === 0 ){
+    if( $compare->conditions->count() === 0 ){
       return "1=1";
     }
 
-    return $compare->conditions->JoinNotSpace();
+    return $compare->conditions->joinNotSpace();
   }
 
-  private function GetGroupBy(
+  private function getGroupBy(
   ): string {
     if(isset($this->groupBy) === false){
       return "";
@@ -134,12 +134,12 @@ class QueryBuild
       return "";
     }
 
-    return sprintf("Group By %s", $this->groupBy->tokens->Mapper(
-      fn(Column $column ) => $column->ToString()
-    )->JoinWithComma());
+    return sprintf("Group By %s", $this->groupBy->tokens->mapper(
+      fn(Column $column ) => $column->toString()
+    )->joinWithComma());
   }
 
-  private function GetOrderByList(
+  private function getOrderByList(
     string $oderbyProps,
     string $oderbyType
   ): array {
@@ -147,43 +147,43 @@ class QueryBuild
       return [];
     }
 
-    if( $this->{$oderbyProps}->tokens->Count() === 0 ){
+    if( $this->{$oderbyProps}->tokens->count() === 0 ){
       return [];
     }
 
-    return $this->{$oderbyProps}->tokens->Mapper(
-      fn(Column $column) => sprintf( "%s {$oderbyType}", $column->ToString())
-    )->All();
+    return $this->{$oderbyProps}->tokens->mapper(
+      fn(Column $column) => sprintf( "%s {$oderbyType}", $column->toString())
+    )->all();
   }
 
-  private function GetOrderBy(
+  private function getOrderBy(
   ): string {
-    $orderByList = DataList::Create(
+    $orderByList = DataList::create(
       array_merge(
-        $this->GetOrderByList("orderByAsc", "Asc"),
-        $this->GetOrderByList("orderByDesc", "Desc")
+        $this->getOrderByList("orderByAsc", "Asc"),
+        $this->getOrderByList("orderByDesc", "Desc")
       )
     );
 
-    return $orderByList->Count() !== 0
-      ? sprintf( "Order By %s", $orderByList->JoinWithComma())
+    return $orderByList->count() !== 0
+      ? sprintf( "Order By %s", $orderByList->joinWithComma())
       : "Order By 1 Asc";
   }
 
-  public function Get(
+  public function get(
   ): string {
     return sprintf(
       "Select %s From %s Where %s %s %s", ...[
-        $this->GetColumns(),
-        $this->GetFroms(),
-        $this->GetWheres(),
-        $this->GetGroupBy(),
-        $this->GetOrderBy()
+        $this->getColumns(),
+        $this->getFroms(),
+        $this->getWheres(),
+        $this->getGroupBy(),
+        $this->getOrderBy()
       ]
     );
   }
   
-  public static function Create(
+  public static function create(
     string $class
   ): QueryBuild {
     return new static($class);

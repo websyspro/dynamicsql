@@ -19,15 +19,15 @@ extends AbstractByFn
 
   private function defineConditionsBlocks(
   ): void {
-    $this->tokens->Mapper(fn(Token $token) => (
+    $this->tokens->mapper(fn(Token $token) => (
       $token->string === "," ? "$||" : $token->string
     ));
   }
 
   private function defineConditionsSplits(
   ): void {
-    $this->tokens = DataList::Create(
-      preg_split( "/\\$\|\|/i", ($this->tokens->JoinNotSpace()), -1, (
+    $this->tokens = DataList::create(
+      preg_split( "/\\$\|\|/i", ($this->tokens->joinNotSpace()), -1, (
         PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY 
       ))
     );
@@ -35,15 +35,15 @@ extends AbstractByFn
 
   private function defineConditionsNormalizeds(    
   ): void {
-    $this->tokens->Mapper(fn(string $token) => preg_replace( "/(\r?\n)/", "", $token ));
-    $this->tokens->Mapper(fn(string $token) => preg_replace( "/\s{2,}/", " ", $token ));
-    $this->tokens->Mapper(fn(string $token) => preg_replace( "/(^\s*)|(\s*$)/", "", $token ));
-    $this->tokens->Mapper(fn(string $token) => preg_replace( "/(===|==|=)/i", "==", $token ));
+    $this->tokens->mapper(fn(string $token) => preg_replace( "/(\r?\n)/", "", $token ));
+    $this->tokens->mapper(fn(string $token) => preg_replace( "/\s{2,}/", " ", $token ));
+    $this->tokens->mapper(fn(string $token) => preg_replace( "/(^\s*)|(\s*$)/", "", $token ));
+    $this->tokens->mapper(fn(string $token) => preg_replace( "/(===|==|=)/i", "==", $token ));
   }
 
   private function defineConditionsToEquals(
   ): void {
-    $this->tokens->Mapper(
+    $this->tokens->mapper(
       function(string $token){
         return new Equal(
           $token, 
@@ -57,11 +57,11 @@ extends AbstractByFn
   public function arrayFromFn(
   ): array {
     return (
-      $this->tokens->Reduce(
+      $this->tokens->reduce(
         [], function(array $curr, Equal $equal){
           [$equalField, $equalVar] = [
-            $equal->equals->First(),
-            $equal->equals->Last()
+            $equal->equals->first(),
+            $equal->equals->last()
           ];
 
           $curr[$equalField->name] = $equalVar->value;

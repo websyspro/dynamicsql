@@ -14,10 +14,10 @@ class ItemParameter
     public string $entity,
     public string $name
   ){
-    $this->ParseParameters();
+    $this->parseParameters();
   }
 
-  public function ParseParameters(
+  public function parseParameters(
   ): void {
     $this->structureTable = (
       new StructureTable($this->entity)
