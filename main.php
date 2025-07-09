@@ -4,6 +4,7 @@ use Websyspro\DynamicSql\Core\DataByFn;
 use Websyspro\DynamicSql\Core\WhereByFn;
 use Websyspro\DynamicSql\QueryBuild;
 use Websyspro\DynamicSql\Test\Entitys\DocumentEntity;
+use Websyspro\DynamicSql\Test\Entitys\OperatorEntity;
 
 // $ids = [1, 2, 3];
 // $listWhite = [456,897];
@@ -14,35 +15,35 @@ use Websyspro\DynamicSql\Test\Entitys\DocumentEntity;
 // $dates->between->dataA = "10/05/2025";
 // $dates->between->dataB = "17/05/2025 15:43:33";
 
-enum EUserPerfil: int {
-  case Simples = 0;
-  case Administrador = 1;
-};
+// enum EUserPerfil: int {
+//   case Simples = 0;
+//   case Administrador = 1;
+// };
 
-enum EDeleted: int {
-  case Not = 0;
-  case Yes = 1;
-};
+// enum EDeleted: int {
+//   case Not = 0;
+//   case Yes = 1;
+// };
 
-// $searach = "VERONICA";
+// // $searach = "VERONICA";
 
-$date = [
-  "CreatedAtStart" => "04/04/2023",
-  "CreatedAtEnd" => "06/04/2023",
-  "State" => "C"
-];
+// $date = [
+//   "CreatedAtStart" => "04/04/2023",
+//   "CreatedAtEnd" => "06/04/2023",
+//   "State" => "C"
+// ];
 
-$Observations = "Valor";
+// $Observations = "Valor";
 
-$queryBuild = (
-  QueryBuild::Create(DocumentEntity::class)
-    ->Where(fn(DocumentEntity $d) => (
-      $d->CreatedAt <= $date["CreatedAtEnd"] &&
-      $d->Observations == "{$Observations}%"
-    ))
-);
+// $queryBuild = (
+//   QueryBuild::Create(DocumentEntity::class)
+//     ->Where(fn(DocumentEntity $d) => (
+//       $d->CreatedAt <= $date["CreatedAtEnd"] &&
+//       $d->Observations == "{$Observations}%"
+//     ))
+// );
 
-print_r($queryBuild);
+// print_r($queryBuild);
 
 // $whereByFn_ = WhereByFn::Create(
 //   fn(DocumentEntity $d) => (
@@ -74,3 +75,15 @@ print_r($queryBuild);
 // );
 
 // print_r($dataByFn->arrayFromFn());
+
+$passWordHash = password_hash("@Qazwsx190483", PASSWORD_BCRYPT);
+
+
+$dataByFn = new DataByFn(
+  fn(OperatorEntity $i) => [
+    $i->Name = $passWordHash,
+    $i->ActivedAt = "25/03/2025 17:33:55"
+  ]
+);
+
+print_r($dataByFn->arrayFromFn());

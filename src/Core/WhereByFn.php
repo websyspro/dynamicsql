@@ -116,7 +116,8 @@ extends AbstractByFn
         new Equal(
           $token, 
           $this->getParameters(),
-          $this->getStatics()
+          $this->getStatics(),
+          true
         )
       )
     );

@@ -18,7 +18,8 @@ class Equal
   public function __construct(
     public string $value,
     public DataList $parameters,
-    public DataList $statics
+    public DataList $statics,
+    public bool $isParse,
   ){
     $this->define();
     $this->defineEqualType();
@@ -279,27 +280,29 @@ class Equal
 
   public function defineParse(
   ): void {
-    if( $this->equalType === EqualType::Equal ){
-      [ $equalA, $_, $equalC ] = (
-        $this->equals->all()
-      ); 
+    if($this->isParse === true){
+      if( $this->equalType === EqualType::Equal ){
+        [ $equalA, $_, $equalC ] = (
+          $this->equals->all()
+        ); 
 
-      if($this->hasField($equalA)){
-        if($this->hasParsed($equalC)){
-          $equalC->value = $this->defineParseValues(
-            $equalA->columnType, $equalC->value
-          );
+        if($this->hasField($equalA)){
+          if($this->hasParsed($equalC)){
+            $equalC->value = $this->defineParseValues(
+              $equalA->columnType, $equalC->value
+            );
+          }
         }
-      }
 
-      if($this->hasField($equalC)){
-        if($this->hasParsed($equalA)){
-          $equalA->value = $this->defineParseValues(
-            $equalC->columnType, $equalA->value
-          );
+        if($this->hasField($equalC)){
+          if($this->hasParsed($equalA)){
+            $equalA->value = $this->defineParseValues(
+              $equalC->columnType, $equalA->value
+            );
+          }
         }
-      }
-    }    
+      } 
+    }
   }
 
   private function getCompareIsField(
