@@ -105,18 +105,18 @@ class Equal
     if(preg_match("/\\$/", $equal) === 1){
       if(preg_match( "/(!=|==|>=|<=|<>)/i", $equal) === 0){
         $hasStatic = $this->statics->Copy()->whereByKey(
-          fn(string $key) => preg_match("/(\{\\$$key\})|(\\$$key)/", $equal)
+          fn(string $key) => preg_match("/(\{\\$$key\})|(\\$$key)/", $equal) === 1
         );
 
         if($hasStatic->exist()){
           $hasStatic->mapper(
-            fn(mixed $txt, string $key) => (
-              new EqualVar(
+            function(mixed $txt, string $key) use($equal) {
+              return new EqualVar(
                 $this->statics, preg_replace(
-                  "/(\{\\$$key\})|(\\$$key)/", $txt, $equal
+                  "/(\{\\$$key\})|(\\$$key)/", strtr($txt, ['$' => '\\$']), $equal
                 )
-              )
-            )
+              );
+            }
           );
 
           return $hasStatic->first();          

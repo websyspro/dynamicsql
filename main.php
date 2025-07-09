@@ -76,14 +76,11 @@ use Websyspro\DynamicSql\Test\Entitys\OperatorEntity;
 
 // print_r($dataByFn->arrayFromFn());
 
-$passWordHash = password_hash("@Qazwsx190483", PASSWORD_BCRYPT);
+// $passWordHash = password_hash("@Qazwsx190483", PASSWORD_BCRYPT);
 
-
-$dataByFn = new DataByFn(
-  fn(OperatorEntity $i) => [
-    $i->Name = $passWordHash,
-    $i->ActivedAt = "25/03/2025 17:33:55"
-  ]
-);
-
-print_r($dataByFn->arrayFromFn());
+// $dataByFn = new DataByFn(
+//   fn(OperatorEntity $i) => [
+//     $i->Name = $passWordHash,
+//     $i->ActivedAt = "25/03/2025 17:33:55"
+//   ]
+// );
