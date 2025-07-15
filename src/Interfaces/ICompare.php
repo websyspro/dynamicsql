@@ -8,6 +8,8 @@ class ICompare
 {
   public function __construct(
     public DataList $froms,
-    public DataList $conditions
+    public DataList $leftJoins,
+    public DataList $conditionsPrimary,
+    public DataList $conditionsSecundary
   ){}
 }

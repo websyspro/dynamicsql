@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace Websyspro\DynamicSql\Test\Entitys;
 
@@ -20,10 +20,12 @@ extends BaseEntity
   public string $Name;
 
   #[Text(1)]
+  #[Unique()]
   public string $State;
 
   #[Number()]
   #[ForeignKey(OperatorEntity::class)]
+  #[Unique(2)]
   public string $OperatorId;
 
   #[Text(255)]

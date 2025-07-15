@@ -125,21 +125,33 @@ extends AbstractByFn
 
   public function getCompare(
   ): ICompare {
+    $forms = $this->getParameters()->mapper(
+      fn( ItemParameter $itemParameter ) => $itemParameter->structureTable->table
+    );
+
+    $leftJoins = $this->tokens->copy()
+      ->where(fn(Equal $token) => $token->isLeftJoin)
+      ->mapper(fn(Equal $token) => $token->leftJoin);
+
+    $conditionsPrimary = DataList::create([
+      $this->tokens->copy()->mapper(
+        fn(Equal $token) => $token->getCompare(
+          $forms->first()
+        )
+      )->joinWithSpace()
+    ]);
+
+    $conditionsSecundary = DataList::create([
+      $this->tokens->copy()->mapper(
+        fn(Equal $token) => $token->getCompare()
+      )->joinWithSpace()
+    ]);    
+
     return new ICompare(
-      DataList::create(
-        $this->getParameters()->mapper(
-          fn( ItemParameter $itemParameter ) => (
-            $itemParameter->structureTable->table
-          )
-        )->all()
-      ),
-      DataList::create([
-        $this->tokens->copy()->mapper(
-          function(Equal $token){
-            return $token->getCompare();
-          }
-        )->joinWithSpace()
-      ])
+      $forms,
+      $leftJoins,
+      $conditionsPrimary,
+      $conditionsSecundary
     );
   }
 }

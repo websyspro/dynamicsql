@@ -35,7 +35,5 @@ class EqualField
   }
 
   public function parseClear(
-  ): void {
-    unset($this->structureTable);
-  }
+  ): void {}
 }

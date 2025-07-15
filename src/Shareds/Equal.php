@@ -7,6 +7,7 @@ use Websyspro\Commons\DataList;
 use Websyspro\DynamicSql\Commons\Util;
 use Websyspro\DynamicSql\Enums\EqualType;
 use Websyspro\DynamicSql\Interfaces\IEqualUnitEnum;
+use Websyspro\Entity\Core\Shareds\ForeignKeyItem;
 use Websyspro\Entity\Enums\ColumnType;
 use Websyspro\Entity\Interfaces\IColumnType;
 
@@ -14,6 +15,8 @@ class Equal
 {
   public DataList $equals;
   public EqualType $equalType;
+  public bool $isLeftJoin;
+  public string $leftJoin;
 
   public function __construct(
     public string $value,
@@ -29,6 +32,7 @@ class Equal
     $this->defineEvaluate();
     $this->defineNulls();
     $this->defineParse();
+    $this->defineForeignKeys();
     $this->defineClear();
   }
 
@@ -345,57 +349,159 @@ class Equal
   }
 
   public function getCompare(
+    string|null $tableBase = null
   ): string|null {
-    if($this->equalType !== EqualType::Equal){
-      return $this->equals->First(); 
-    } else {
-      [ $equalA, $equalB, $equalC ] = (
-        $this->equals->all()
-      );
+    [ $equalA, $equalB, $equalC ] = (
+      $this->equals->all()
+    );
 
-      if($this->hasField($equalA)){
-        if($this->hasParsed($equalC)){
-          return sprintf("%s %s %s", 
-            $this->getCompareIsField(
-              $equalA, $equalA->columnType, $equalC->value
-            ), 
-            $this->getCompareToCompare(
-              $equalC, $equalB
-            ), $equalC->value
-          );
-        }
+    if($tableBase !== null){
+      if($this->equalType !== EqualType::Equal){
+        return $this->equals->First(); 
       }
 
-      if($this->hasField($equalC)){
-        if($this->hasParsed($equalA)){
-          return sprintf("%s %s %s", 
-            $this->getCompareIsField(
-              $equalC, $equalC->columnType, $equalA->value
-            ), 
-            $this->getCompareToCompare(
-              $equalA, $equalB
-            ), $equalA->value
-          );       
-        }
+      if($this->isLeftJoin === true){
+        return "1 = 1";
       }
 
-      if($this->hasField($equalA)){
+      $hasCompareBaseA = $this->hasField($equalA) === true && $this->hasParsed($equalC) === true;
+      $hasCompareBaseC = $this->hasField($equalC) === true && $this->hasParsed($equalA) === true;
+
+      if($hasCompareBaseA === true || $hasCompareBaseC === true){
+        if($this->hasField($equalA)){
+          if($this->hasParsed($equalC)){
+            return sprintf("%s %s %s", 
+              $this->getCompareIsField(
+                $equalA, $equalA->columnType, $equalC->value
+              ), 
+              $this->getCompareToCompare(
+                $equalC, $equalB
+              ), $equalC->value
+            );  
+          }
+        }
+
         if($this->hasField($equalC)){
-          return sprintf("%s %s %s", 
-            $this->getCompareIsField(
-              $equalA, null, null
-            ), 
-            $this->getCompareToCompare(
-              null, $equalB
-            ), $this->getCompareIsField(
-              $equalC, null, null
-            )
-          );       
+          if($this->hasParsed($equalA)){
+            return sprintf("%s %s %s", 
+              $this->getCompareIsField(
+                $equalC, $equalC->columnType, $equalA->value
+              ), 
+              $this->getCompareToCompare(
+                $equalA, $equalB
+              ), $equalA->value
+            );       
+          }
         }
-      }      
+      }
+      
+      print_r($this);
 
       return null;
+    } else {
+      if($this->equalType !== EqualType::Equal){
+        return $this->equals->First(); 
+      } else {
+        if($this->hasField($equalA)){
+          if($this->hasParsed($equalC)){
+            return sprintf("%s %s %s", 
+              $this->getCompareIsField(
+                $equalA, $equalA->columnType, $equalC->value
+              ), 
+              $this->getCompareToCompare(
+                $equalC, $equalB
+              ), $equalC->value
+            );
+          }
+        }
+
+        if($this->hasField($equalC)){
+          if($this->hasParsed($equalA)){
+            return sprintf("%s %s %s", 
+              $this->getCompareIsField(
+                $equalC, $equalC->columnType, $equalA->value
+              ), 
+              $this->getCompareToCompare(
+                $equalA, $equalB
+              ), $equalA->value
+            );       
+          }
+        }
+
+        if($this->hasField($equalA)){
+          if($this->hasField($equalC)){
+            return sprintf("%s %s %s", 
+              $this->getCompareIsField(
+                $equalA, null, null
+              ), 
+              $this->getCompareToCompare(
+                null, $equalB
+              ), $this->getCompareIsField(
+                $equalC, null, null
+              )
+            );       
+          }
+        }      
+
+        return null;
+      }
     }
+  }
+
+  public function defineForeignKeys(
+  ): void {
+    if($this->equals->count() === 3){
+      [$equalA, $equalC] = [
+        $this->equals->first(),
+        $this->equals->last()
+      ];
+      
+      if($equalA instanceof EqualField && $equalC instanceof EqualField){
+        $foreignKeysA = $equalA->structureTable->foreignKeys()->listNames($equalA->structureTable->table);
+        $foreignKeysC = $equalC->structureTable->foreignKeys()->listNames($equalC->structureTable->table);
+
+        $hasLeftJoinInEqualA = $foreignKeysA->where(
+          fn(ForeignKeyItem $fk) => (
+            $fk->foreignKeyReferenceItem->key === $equalC->name &&
+            $fk->foreignKeyReferenceItem->table === $equalC->table
+          )
+        ); 
+
+        $hasLeftJoinInEqualC = $foreignKeysC->where(
+          fn(ForeignKeyItem $fk) => (
+            $fk->foreignKeyReferenceItem->key === $equalA->name &&
+            $fk->foreignKeyReferenceItem->table === $equalA->table
+          )
+        );
+
+        if($hasLeftJoinInEqualA->exist() !== 0 || $hasLeftJoinInEqualC->exist() !== 0){
+          if($hasLeftJoinInEqualA->exist() !== 0){
+            $this->leftJoin = sprintf("Left Join %s On %s.%s = %s.%s", ...[
+              $equalA->table,
+              $equalA->table,
+              $equalA->name, 
+              $hasLeftJoinInEqualA->first()->foreignKeyReferenceItem->table,
+              $hasLeftJoinInEqualA->first()->foreignKeyReferenceItem->key
+            ]);
+          } else
+          if($hasLeftJoinInEqualC->exist() !== 0){
+            $this->leftJoin = sprintf("Left Join %s On %s.%s = %s.%s", ...[
+              $equalA->table,
+              $equalA->table,
+              $equalA->name, 
+              $hasLeftJoinInEqualA->first()->foreignKeyReferenceItem->table,
+              $hasLeftJoinInEqualA->first()->foreignKeyReferenceItem->key
+            ]);
+          }
+
+          $this->isLeftJoin = true;
+        }
+     
+      } else $this->isLeftJoin = false;
+    } else $this->isLeftJoin = false;
+
+
+    //print_r($this);
   }
 
   public function defineClear(
