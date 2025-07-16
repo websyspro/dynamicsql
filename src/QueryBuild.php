@@ -8,7 +8,9 @@ use Websyspro\DynamicSql\Core\OrderByAscByFn;
 use Websyspro\DynamicSql\Core\OrderByDescByFn;
 use Websyspro\DynamicSql\Core\SelectByFn;
 use Websyspro\DynamicSql\Core\WhereByFn;
+use Websyspro\DynamicSql\Interfaces\ICompare;
 use Websyspro\DynamicSql\Shareds\Column;
+use Websyspro\DynamicSql\Shareds\ItemParameter;
 use Websyspro\Entity\Core\StructureTable;
 
 class QueryBuild
@@ -33,6 +35,11 @@ class QueryBuild
     )->table;
   }
 
+  private function getTable(
+  ): string {
+    return $this->table;
+  }
+
   private function setProps(
     string $name,
     mixed $prop
@@ -49,6 +56,11 @@ class QueryBuild
     );
   }
 
+  public function hasSelect(
+  ): bool {
+    return isset($this->select);
+  }
+
   public function where(
     callable $fn
   ): QueryBuild {
@@ -56,6 +68,11 @@ class QueryBuild
       "where", WhereByFn::create($fn)
     );
   }
+
+  public function hasWhere(
+  ): bool {
+    return isset($this->where);
+  }  
 
   public function groupBy(
     callable $fn
@@ -81,47 +98,89 @@ class QueryBuild
     );
   }
 
+  private function getColumnsFromWhere(
+  ): string {
+    if($this->hasWhere() === false){
+      return "*";
+    }
+    
+    $columns = $this->where->getParameters()->copy()->mapper(
+      fn(ItemParameter $ip) => $ip->structureTable->columns()->listNames()->mapper(
+        fn(string $column) => sprintf( "%s.%s As %s_%s", ...[
+          $ip->structureTable->table, $column, $ip->name, $column
+        ])
+      )->joinWithComma()
+    );
+
+    return $columns->joinWithComma();
+  }
+
   private function getColumns(
   ): string {
     if(isset($this->select) === false){
-      return "*";
+      return $this->getColumnsFromWhere();
     }
 
     if($this->select->tokens->count() === 0){
-      return "*";  
+      return $this->getColumnsFromWhere();
     }
 
-    return $this->select->tokens->mapper(
-      fn(Column $column ) => $column->toString()
+    return $this->select->tokens->copy()->mapper(
+      fn(Column $column) => $column->toString(
+         $this->select->getParameters()
+      )
     )->JoinWithComma();
   }
 
-  private function getFroms(
+  private function getWherePrimary(
   ): string {
-    if(isset($this->where) === false){
-      return $this->table;
+    if($this->hasWhere() === false){
+      return "Where 1=1";
     }
 
-    $compare = $this->where->getCompare();
-    if( $compare->froms->count() === 0 ){
-      return $this->table;
-    }
-
-    return $compare->froms->joinWithComma();
+    return $this->where->getCompare()->conditionsPrimary->first();
   }
 
-  private function getWheres(
+  private function getPaginator(
   ): string {
-    if(isset($this->where) === false){
+    return "Limit 0, 12";
+  }
+
+  private function getSqlBase(
+  ): string {
+    return sprintf( 
+      "(Select * From %s Where %s %s %s %s) As %s", ...[
+        //$this->getColumns(),
+        $this->getTable(),
+        $this->getWherePrimary(),
+        $this->getGroupBy(),
+        $this->getOrderBy(),
+        $this->getPaginator(),
+        $this->getTable()
+      ]
+    );
+  }
+
+  private function getLeftJoins(
+  ): string {
+    if($this->hasWhere() === false){
+      return "";
+    }
+
+    return $this->where->getCompare()->leftJoins->joinWithSpace();
+  }
+
+  private function getWheresSecundary(
+  ): string {
+    if($this->hasWhere() === false){
       return "1=1";
     }
 
-    $compare = $this->where->getCompare();
-    if( $compare->conditions->count() === 0 ){
+    if($this->where->getCompare()->conditionsSecundary->count() === 0 ){
       return "1=1";
     }
 
-    return $compare->conditions->joinNotSpace();
+    return $this->where->getCompare()->conditionsSecundary->first();
   }
 
   private function getGroupBy(
@@ -135,7 +194,7 @@ class QueryBuild
     }
 
     return sprintf("Group By %s", $this->groupBy->tokens->mapper(
-      fn(Column $column ) => $column->toString()
+      fn(Column $column ) => $column->getOrderByString()
     )->joinWithComma());
   }
 
@@ -152,7 +211,7 @@ class QueryBuild
     }
 
     return $this->{$oderbyProps}->tokens->mapper(
-      fn(Column $column) => sprintf( "%s {$oderbyType}", $column->toString())
+      fn(Column $column) => sprintf( "%s {$oderbyType}", $column->getOrderByString())
     )->all();
   }
 
@@ -173,12 +232,11 @@ class QueryBuild
   public function get(
   ): string {
     return sprintf(
-      "Select %s From %s Where %s %s %s", ...[
+      "Select %s From %s %s Where %s %s", ...[
         $this->getColumns(),
-        $this->getFroms(),
-        $this->getWheres(),
-        $this->getGroupBy(),
-        $this->getOrderBy()
+        $this->getSqlBase(),
+        $this->getLeftJoins(),
+        $this->getWheresSecundary()
       ]
     );
   }
