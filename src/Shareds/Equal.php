@@ -394,8 +394,6 @@ class Equal
           }
         }
       }
-      
-      print_r($this);
 
       return null;
     } else {
@@ -459,44 +457,40 @@ class Equal
       if($equalA instanceof EqualField && $equalC instanceof EqualField){
         $foreignKeysA = $equalA->structureTable->foreignKeys()->listNames($equalA->structureTable->table);
         $foreignKeysC = $equalC->structureTable->foreignKeys()->listNames($equalC->structureTable->table);
-
+        
         $hasLeftJoinInEqualA = $foreignKeysA->where(
           fn(ForeignKeyItem $fk) => (
-            $fk->foreignKeyReferenceItem->key === $equalC->name &&
-            $fk->foreignKeyReferenceItem->table === $equalC->table
+            $fk->foreignKeyReferenceItem->table === $equalC->table &&
+            $fk->foreignKeyReferenceItem->key === $equalC->name
           )
         ); 
 
         $hasLeftJoinInEqualC = $foreignKeysC->where(
           fn(ForeignKeyItem $fk) => (
-            $fk->foreignKeyReferenceItem->key === $equalA->name &&
-            $fk->foreignKeyReferenceItem->table === $equalA->table
+            $fk->foreignKeyReferenceItem->table === $equalA->table &&
+            $fk->foreignKeyReferenceItem->key === $equalA->name
           )
         );
 
-        if($hasLeftJoinInEqualA->exist() !== 0 || $hasLeftJoinInEqualC->exist() !== 0){
-          if($hasLeftJoinInEqualA->exist() !== 0){
-            $this->leftJoin = sprintf("Left Join %s On %s.%s = %s.%s", ...[
-              $equalA->table,
-              $equalA->table,
-              $equalA->name, 
-              $hasLeftJoinInEqualA->first()->foreignKeyReferenceItem->table,
-              $hasLeftJoinInEqualA->first()->foreignKeyReferenceItem->key
-            ]);
-          } else
-          if($hasLeftJoinInEqualC->exist() !== 0){
-            $this->leftJoin = sprintf("Left Join %s On %s.%s = %s.%s", ...[
-              $equalA->table,
-              $equalA->table,
-              $equalA->name, 
-              $hasLeftJoinInEqualA->first()->foreignKeyReferenceItem->table,
-              $hasLeftJoinInEqualA->first()->foreignKeyReferenceItem->key
-            ]);
-          }
+        $leftJoin = $hasLeftJoinInEqualA->exist() === true
+          ? $hasLeftJoinInEqualA->first()
+          : $hasLeftJoinInEqualC->first();
 
-          $this->isLeftJoin = true;
+        if($leftJoin instanceof ForeignKeyItem){
+          if($this->parameters->first()->structureTable->table === $leftJoin->foreignKeyReferenceItem->table){
+            $this->leftJoin = (
+              "Left Join {$leftJoin->table} 
+                      On {$leftJoin->table}.{$leftJoin->key} = {$leftJoin->foreignKeyReferenceItem->table}.{$leftJoin->foreignKeyReferenceItem->key}"
+            );
+          } else {
+            $this->leftJoin = (
+              "Left Join {$leftJoin->foreignKeyReferenceItem->table} 
+                      On {$leftJoin->foreignKeyReferenceItem->table}.{$leftJoin->foreignKeyReferenceItem->key} = {$leftJoin->table}.{$leftJoin->key}"
+            );          
+          }
+            
+          $this->isLeftJoin = true;         
         }
-     
       } else $this->isLeftJoin = false;
     } else $this->isLeftJoin = false;
 

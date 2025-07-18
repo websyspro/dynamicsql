@@ -8,9 +8,11 @@ use Websyspro\DynamicSql\Core\OrderByAscByFn;
 use Websyspro\DynamicSql\Core\OrderByDescByFn;
 use Websyspro\DynamicSql\Core\SelectByFn;
 use Websyspro\DynamicSql\Core\WhereByFn;
-use Websyspro\DynamicSql\Interfaces\ICompare;
+use Websyspro\DynamicSql\Enums\EDriverType;
+use Websyspro\DynamicSql\Enums\EOrderByPriorityType;
 use Websyspro\DynamicSql\Shareds\Column;
 use Websyspro\DynamicSql\Shareds\ItemParameter;
+use Websyspro\DynamicSql\Test\Entitys\DocumentEntity;
 use Websyspro\Entity\Core\StructureTable;
 
 class QueryBuild
@@ -21,6 +23,9 @@ class QueryBuild
   public GroupByFn $groupBy;
   public OrderByAscByFn $orderByAsc;
   public OrderByDescByFn $orderByDesc;
+  public EDriverType $driverType;
+  public int $limit;
+  public int $offSet;
 
   public function __construct(
     public string $class
@@ -58,7 +63,8 @@ class QueryBuild
 
   public function hasSelect(
   ): bool {
-    return isset($this->select);
+    return isset($this->select) === true 
+        && $this->select->tokens->count() !== 0;
   }
 
   public function where(
@@ -71,7 +77,8 @@ class QueryBuild
 
   public function hasWhere(
   ): bool {
-    return isset($this->where);
+    return isset($this->where) === true 
+        && $this->where->tokens->count() !== 0;
   }  
 
   public function groupBy(
@@ -82,6 +89,12 @@ class QueryBuild
     );
   }
 
+  public function hasGroupBy(
+  ): bool {
+    return isset($this->groupBy) === true 
+        && $this->groupBy->tokens->count() !== 0;
+  }
+
   public function orderByAsc(
     callable $fn
   ): QueryBuild {
@@ -90,12 +103,45 @@ class QueryBuild
     );
   }
 
+  public function hasOrderByAsc(
+  ): bool {
+    return isset($this->orderByAsc) === true 
+        && $this->orderByAsc->tokens->count() !== 0;
+  }  
+
   public function orderByDesc(
     callable $fn
   ): QueryBuild {
     return $this->setProps(
       "orderByDesc", OrderByDescByFn::create($fn)
     );
+  }
+
+  public function hasOrderByDesc(
+  ): bool {
+    return isset($this->orderByDesc) === true 
+        && $this->orderByDesc->tokens->count() !== 0;
+  }
+
+  public function paged(
+    int $limit,
+    int $offSet
+  ): QueryBuild {
+    $limit = bcmul(
+      $offSet, bcsub(
+        $limit, 1, 0
+      ), 0
+    );
+
+    $this->setProps("limit", $limit);
+    $this->setProps("offSet", $offSet);
+    return $this;
+  }
+
+  private function hasPagination(
+  ): bool {
+    return isset($this->limit) === true 
+        && isset($this->offSet) === true;
   }
 
   private function getColumnsFromWhere(
@@ -117,11 +163,7 @@ class QueryBuild
 
   private function getColumns(
   ): string {
-    if(isset($this->select) === false){
-      return $this->getColumnsFromWhere();
-    }
-
-    if($this->select->tokens->count() === 0){
+    if($this->hasSelect() === false){
       return $this->getColumnsFromWhere();
     }
 
@@ -141,24 +183,23 @@ class QueryBuild
     return $this->where->getCompare()->conditionsPrimary->first();
   }
 
-  private function getPaginator(
+  private function getPagination(
   ): string {
-    return "Limit 0, 12";
-  }
+    if($this->hasPagination() === false){
+      return "";
+    }
 
-  private function getSqlBase(
-  ): string {
-    return sprintf( 
-      "(Select * From %s Where %s %s %s %s) As %s", ...[
-        //$this->getColumns(),
-        $this->getTable(),
-        $this->getWherePrimary(),
-        $this->getGroupBy(),
-        $this->getOrderBy(),
-        $this->getPaginator(),
-        $this->getTable()
-      ]
-    );
+    if($this->driverType === EDriverType::mysql){
+      return "Limit {$this->limit}, {$this->offSet}";
+    } else
+    if($this->driverType === EDriverType::postgress){
+      return "Limit {$this->limit} OffSet {$this->offSet}";
+    } else
+    if($this->driverType === EDriverType::sqlserver){
+      return "OffSet {$this->limit} Rows Fetch Next {$this->offSet} Rows Only";
+    }
+
+    return "";
   }
 
   private function getLeftJoins(
@@ -176,68 +217,111 @@ class QueryBuild
       return "1=1";
     }
 
-    if($this->where->getCompare()->conditionsSecundary->count() === 0 ){
-      return "1=1";
-    }
-
     return $this->where->getCompare()->conditionsSecundary->first();
   }
 
   private function getGroupBy(
   ): string {
-    if(isset($this->groupBy) === false){
+    if($this->hasGroupBy() === false){
       return "";
     }
 
-    if($this->groupBy->tokens->Count() === 0){
-      return "";
-    }
-
-    return sprintf("Group By %s", $this->groupBy->tokens->mapper(
+    $groupBys = $this->groupBy->tokens->mapper(
       fn(Column $column ) => $column->getOrderByString()
-    )->joinWithComma());
+    )->joinWithComma();
+
+    return "Group By {$groupBys}";
+  }
+
+  private function hasOrderByList(
+    string $oderbyProps
+  ): bool {
+    return isset($this->{$oderbyProps}) === true 
+        && $this->{$oderbyProps}->tokens->count() !== 0;
   }
 
   private function getOrderByList(
     string $oderbyProps,
-    string $oderbyType
+    string $oderbyType,
+    EOrderByPriorityType $orderByPriorityType
   ): array {
-    if( isset( $this->{$oderbyProps}) === false ){
+    if($this->hasOrderByList($oderbyProps) === false){
       return [];
     }
 
-    if( $this->{$oderbyProps}->tokens->count() === 0 ){
-      return [];
+    if($this->where->getParameters()->exist() === true){
+      if($this->where->getParameters()->first() instanceof ItemParameter){
+        if($orderByPriorityType === EOrderByPriorityType::Primary){
+          $orderBys = $this->{$oderbyProps}->tokens->copy()->where(fn(Column $column) => (
+            $column->table === $this->where->getParameters()->first()->structureTable->table
+          ));
+        } else
+        if($orderByPriorityType === EOrderByPriorityType::Secundary){
+          $orderBys = $this->{$oderbyProps}->tokens->copy()->where(fn(Column $column) => (
+            $column->table !== $this->where->getParameters()->first()->structureTable->table
+          ));
+        }
+      }
     }
 
-    return $this->{$oderbyProps}->tokens->mapper(
-      fn(Column $column) => sprintf( "%s {$oderbyType}", $column->getOrderByString())
+    return $orderBys->mapper(
+      fn(Column $column) => (
+        "{$column->getOrderByString()} {$oderbyType}"
+      )
     )->all();
   }
 
   private function getOrderBy(
+    EOrderByPriorityType $orderByPriorityType
   ): string {
     $orderByList = DataList::create(
       array_merge(
-        $this->getOrderByList("orderByAsc", "Asc"),
-        $this->getOrderByList("orderByDesc", "Desc")
+        $this->getOrderByList("orderByAsc", "Asc", $orderByPriorityType),
+        $this->getOrderByList("orderByDesc", "Desc", $orderByPriorityType)
       )
     );
 
     return $orderByList->count() !== 0
-      ? sprintf( "Order By %s", $orderByList->joinWithComma())
+      ? "Order By {$orderByList->joinWithComma()}"
       : "Order By 1 Asc";
   }
 
-  public function get(
+  private function getOrderByPrimary(
   ): string {
-    return sprintf(
-      "Select %s From %s %s Where %s %s", ...[
-        $this->getColumns(),
-        $this->getSqlBase(),
-        $this->getLeftJoins(),
-        $this->getWheresSecundary()
-      ]
+    return $this->getOrderBy(EOrderByPriorityType::Primary);
+  }
+
+  private function getOrderBySecundary(
+  ): string {
+    return $this->getOrderBy(EOrderByPriorityType::Secundary);
+  }
+
+  private function getSqlBase(
+  ): string {
+    return (
+      "(Select * 
+          From {$this->getTable()}
+         Where {$this->getWherePrimary()} 
+               {$this->getGroupBy()}
+               {$this->getOrderByPrimary()}
+               {$this->getPagination()}
+          ) As {$this->getTable()}"
+    );
+  }  
+
+  public function get(
+    EDriverType|null $driverType = null
+  ): string {
+    if($driverType !== null){
+      $this->driverType = $driverType;
+    }
+
+    return (
+      "Select {$this->getColumns()} 
+         From {$this->getSqlBase()} 
+              {$this->getLeftJoins()} 
+        Where {$this->getWheresSecundary()}
+              {$this->getOrderBySecundary()}"
     );
   }
   
