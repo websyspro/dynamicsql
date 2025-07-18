@@ -37,10 +37,10 @@ $queryBuild = QueryBuild::create(DocumentEntity::class)
     ]
   )
   ->orderByDesc(fn(CustomerEntity $c) => $c->Name)
-  ->paged(1, 324);
+  ->paged(4, 1);
 
 $conn = new PDO("mysql:host=localhost;port=3307;dbname=shops", "root", "qazwsx");
 
-print_r($queryBuild->get(EDriverType::mysql));
+//print_r($queryBuild->get(EDriverType::mysql));
 
 print_r(($conn->query($queryBuild->get(EDriverType::mysql))->fetchAll(PDO::FETCH_OBJ)));
