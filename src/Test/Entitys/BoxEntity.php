@@ -3,7 +3,7 @@
 namespace Websyspro\DynamicSql\Test\Entitys;
 
 use Websyspro\Entity\Core\Bases\BaseEntity;
-use Websyspro\Entity\Decorations\Constraints\OneToOne;
+use Websyspro\Entity\Decorations\Constraints\ForeignKey;
 use Websyspro\Entity\Decorations\Constraints\Unique;
 use Websyspro\Entity\Decorations\Statistics\Index;
 use Websyspro\Entity\Decorations\Columns\Datetime;
@@ -24,7 +24,7 @@ extends BaseEntity
   public string $State;
 
   #[Number()]
-  #[OneToOne(OperatorEntity::class)]
+  #[ForeignKey(OperatorEntity::class)]
   #[Unique(2)]
   public string $OperatorId;
 

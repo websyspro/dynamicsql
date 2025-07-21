@@ -22,25 +22,11 @@ $queryBuild = QueryBuild::create(DocumentEntity::class)
       $g->Id == $p->ProductGroupId
     )
   )
-  ->select(
-    fn(DocumentEntity $d, DocumentItemEntity $i, ProductEntity $p, CustomerEntity $c) => [
-      $d->Id,
-      $i->Amount,
-      $i->Value,
-      $d->State,
-      $i->Id,
-      $p->Id,
-      $p->Name,
-      $c->Id,
-      $c->Cpf,
-      $c->Name
-    ]
-  )
   ->orderByDesc(fn(CustomerEntity $c) => $c->Name)
   ->paged(4, 1);
 
-$conn = new PDO("mysql:host=localhost;port=3307;dbname=shops", "root", "qazwsx");
+// $conn = new PDO("mysql:host=localhost;port=3307;dbname=shops", "root", "qazwsx");
 
-//print_r($queryBuild->get(EDriverType::mysql));
+print_r($queryBuild->get(EDriverType::mysql));
 
-print_r(($conn->query($queryBuild->get(EDriverType::mysql))->fetchAll(PDO::FETCH_OBJ)));
+//print_r(($conn->query($queryBuild->get(EDriverType::mysql))->fetchAll(PDO::FETCH_OBJ)));
