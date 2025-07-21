@@ -51,12 +51,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/websyspro/entity.git",
-                "reference": "15c1238966f6f0e231e377aa3fb68ca8afd87238"
+                "reference": "f1ec5e00f6dbcf7ee6e917d663c76a7b5bb9a0ab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/websyspro/entity/zipball/15c1238966f6f0e231e377aa3fb68ca8afd87238",
-                "reference": "15c1238966f6f0e231e377aa3fb68ca8afd87238",
+                "url": "https://api.github.com/repos/websyspro/entity/zipball/f1ec5e00f6dbcf7ee6e917d663c76a7b5bb9a0ab",
+                "reference": "f1ec5e00f6dbcf7ee6e917d663c76a7b5bb9a0ab",
                 "shasum": ""
             },
             "require-dev": {
@@ -88,7 +88,7 @@
                 "issues": "https://github.com/websyspro/entity/issues",
                 "source": "https://github.com/websyspro/entity/tree/main"
             },
-            "time": "2025-07-15T21:52:15+00:00"
+            "time": "2025-07-21T00:32:47+00:00"
         },
         {
             "name": "websyspro/watch",

@@ -6,7 +6,7 @@ use Websyspro\Entity\Core\Bases\BaseEntity;
 use Websyspro\Entity\Decorations\Columns\Decimal;
 use Websyspro\Entity\Decorations\Columns\Number;
 use Websyspro\Entity\Decorations\Columns\Text;
-use Websyspro\Entity\Decorations\Constraints\ForeignKey;
+use Websyspro\Entity\Decorations\Constraints\OneToOne;
 use Websyspro\Entity\Decorations\Statistics\Index;
 
 class DocumentEntity
@@ -21,16 +21,16 @@ extends BaseEntity
 
   #[Number()]
   #[Index(2)]
-  #[ForeignKey(BoxEntity::class)]
+  #[OneToOne(BoxEntity::class)]
   public int $BoxId;
 
   #[Number()]
   #[Index(2)]
-  #[ForeignKey(OperatorEntity::class)]
+  #[OneToOne(OperatorEntity::class)]
   public int $OperatorId;
 
   #[Number()]
-  #[ForeignKey(CustomerEntity::class)]
+  #[OneToOne(CustomerEntity::class)]
   public int $CustomerId;
 
   #[Decimal(10,2)]

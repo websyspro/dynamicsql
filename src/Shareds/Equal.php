@@ -4,11 +4,11 @@ namespace Websyspro\DynamicSql\Shareds;
 
 use UnitEnum;
 use Websyspro\Commons\DataList;
+use Websyspro\Entity\Enums\ColumnType;
 use Websyspro\DynamicSql\Commons\Util;
 use Websyspro\DynamicSql\Enums\EqualType;
 use Websyspro\DynamicSql\Interfaces\IEqualUnitEnum;
-use Websyspro\Entity\Core\Shareds\ForeignKeyItem;
-use Websyspro\Entity\Enums\ColumnType;
+use Websyspro\Entity\Core\Shareds\OneToOneItem;
 use Websyspro\Entity\Interfaces\IColumnType;
 
 class Equal
@@ -32,7 +32,7 @@ class Equal
     $this->defineEvaluate();
     $this->defineNulls();
     $this->defineParse();
-    $this->defineForeignKeys();
+    $this->defineOneToOnes();
     $this->defineClear();
   }
 
@@ -446,7 +446,7 @@ class Equal
     }
   }
 
-  public function defineForeignKeys(
+  public function defineOneToOnes(
   ): void {
     if($this->equals->count() === 3){
       [$equalA, $equalC] = [
@@ -455,20 +455,20 @@ class Equal
       ];
       
       if($equalA instanceof EqualField && $equalC instanceof EqualField){
-        $foreignKeysA = $equalA->structureTable->foreignKeys()->listNames($equalA->structureTable->table);
-        $foreignKeysC = $equalC->structureTable->foreignKeys()->listNames($equalC->structureTable->table);
+        $oneToOnesA = $equalA->structureTable->oneToOnes()->listNames($equalA->structureTable->table);
+        $oneToOnesC = $equalC->structureTable->oneToOnes()->listNames($equalC->structureTable->table);
         
-        $hasLeftJoinInEqualA = $foreignKeysA->where(
-          fn(ForeignKeyItem $fk) => (
-            $fk->foreignKeyReferenceItem->table === $equalC->table &&
-            $fk->foreignKeyReferenceItem->key === $equalC->name
+        $hasLeftJoinInEqualA = $oneToOnesA->where(
+          fn(OneToOneItem $fk) => (
+            $fk->oneToOneReferenceItem->table === $equalC->table &&
+            $fk->oneToOneReferenceItem->key === $equalC->name
           )
         ); 
 
-        $hasLeftJoinInEqualC = $foreignKeysC->where(
-          fn(ForeignKeyItem $fk) => (
-            $fk->foreignKeyReferenceItem->table === $equalA->table &&
-            $fk->foreignKeyReferenceItem->key === $equalA->name
+        $hasLeftJoinInEqualC = $oneToOnesC->where(
+          fn(OneToOneItem $fk) => (
+            $fk->oneToOneReferenceItem->table === $equalA->table &&
+            $fk->oneToOneReferenceItem->key === $equalA->name
           )
         );
 
@@ -476,16 +476,16 @@ class Equal
           ? $hasLeftJoinInEqualA->first()
           : $hasLeftJoinInEqualC->first();
 
-        if($leftJoin instanceof ForeignKeyItem){
-          if($this->parameters->first()->structureTable->table === $leftJoin->foreignKeyReferenceItem->table){
+        if($leftJoin instanceof OneToOneItem){
+          if($this->parameters->first()->structureTable->table === $leftJoin->oneToOneReferenceItem->table){
             $this->leftJoin = (
               "Left Join {$leftJoin->table} 
-                      On {$leftJoin->table}.{$leftJoin->key} = {$leftJoin->foreignKeyReferenceItem->table}.{$leftJoin->foreignKeyReferenceItem->key}"
+                      On {$leftJoin->table}.{$leftJoin->key} = {$leftJoin->oneToOneReferenceItem->table}.{$leftJoin->oneToOneReferenceItem->key}"
             );
           } else {
             $this->leftJoin = (
-              "Left Join {$leftJoin->foreignKeyReferenceItem->table} 
-                      On {$leftJoin->foreignKeyReferenceItem->table}.{$leftJoin->foreignKeyReferenceItem->key} = {$leftJoin->table}.{$leftJoin->key}"
+              "Left Join {$leftJoin->oneToOneReferenceItem->table} 
+                      On {$leftJoin->oneToOneReferenceItem->table}.{$leftJoin->oneToOneReferenceItem->key} = {$leftJoin->table}.{$leftJoin->key}"
             );          
           }
             
@@ -493,9 +493,6 @@ class Equal
         }
       } else $this->isLeftJoin = false;
     } else $this->isLeftJoin = false;
-
-
-    //print_r($this);
   }
 
   public function defineClear(

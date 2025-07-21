@@ -3,13 +3,13 @@
 namespace Websyspro\DynamicSql\Test\Entitys;
 
 use Websyspro\Entity\Core\Bases\BaseEntity;
+use Websyspro\Entity\Decorations\Constraints\OneToOne;
+use Websyspro\Entity\Decorations\Constraints\Unique;
+use Websyspro\Entity\Decorations\Statistics\Index;
 use Websyspro\Entity\Decorations\Columns\Datetime;
 use Websyspro\Entity\Decorations\Columns\Decimal;
 use Websyspro\Entity\Decorations\Columns\Number;
 use Websyspro\Entity\Decorations\Columns\Text;
-use Websyspro\Entity\Decorations\Constraints\ForeignKey;
-use Websyspro\Entity\Decorations\Constraints\Unique;
-use Websyspro\Entity\Decorations\Statistics\Index;
 
 class BoxEntity 
 extends BaseEntity
@@ -24,7 +24,7 @@ extends BaseEntity
   public string $State;
 
   #[Number()]
-  #[ForeignKey(OperatorEntity::class)]
+  #[OneToOne(OperatorEntity::class)]
   #[Unique(2)]
   public string $OperatorId;
 
