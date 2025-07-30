@@ -352,10 +352,6 @@ class Equal
   public function getCompare(
     string|null $tableBase = null
   ): string|null {
-    [ $equalA, $equalB, $equalC ] = (
-      $this->equals->all()
-    );
-
     if($tableBase !== null){
       if($this->equalType !== EqualType::Equal){
         return $this->equals->First(); 
@@ -364,6 +360,10 @@ class Equal
       if($this->isLeftJoin === true){
         return "1 = 1";
       }
+
+      [ $equalA, $equalB, $equalC ] = (
+        $this->equals->all()
+      );      
 
       $hasCompareBaseA = $this->hasField($equalA) === true && $this->hasParsed($equalC) === true;
       $hasCompareBaseC = $this->hasField($equalC) === true && $this->hasParsed($equalA) === true;
@@ -401,6 +401,10 @@ class Equal
       if($this->equalType !== EqualType::Equal){
         return $this->equals->First(); 
       } else {
+        [ $equalA, $equalB, $equalC ] = (
+          $this->equals->all()
+        ); 
+
         if($this->hasField($equalA)){
           if($this->hasParsed($equalC)){
             return sprintf("%s %s %s", 
