@@ -17,6 +17,7 @@ class Equal
   public EqualType $equalType;
   public string $leftJoin;
   public bool $isLeftJoin;
+  public bool $isPrimary;
   
   public function __construct(
     public string $value,
@@ -39,6 +40,8 @@ class Equal
   private function define(
   ): void {
     $this->isLeftJoin = false;
+    $this->isPrimary = false;
+
     $this->equals = DataList::create(
       preg_split("/(!=|==|>=|<=|<>)/", $this->value, 2, (
         PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY
@@ -363,7 +366,15 @@ class Equal
 
       [ $equalA, $equalB, $equalC ] = (
         $this->equals->all()
-      );      
+      );
+
+      if($this->hasField($equalA) === true && $equalA->table !== $tableBase){
+        return "1 = 1";
+      }
+
+      if($this->hasField($equalC) === true && $equalC->table !== $tableBase){
+        return "1 = 1";
+      }
 
       $hasCompareBaseA = $this->hasField($equalA) === true && $this->hasParsed($equalC) === true;
       $hasCompareBaseC = $this->hasField($equalC) === true && $this->hasParsed($equalA) === true;

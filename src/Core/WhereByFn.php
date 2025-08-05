@@ -130,7 +130,7 @@ extends AbstractByFn
     );
 
     $leftJoins = $this->tokens->copy()
-      ->where(fn(Equal $token) => $token->isLeftJoin)
+      ->where(fn(Equal $token) => $token->isLeftJoin || $token->isPrimary)
       ->mapper(fn(Equal $token) => $token->leftJoin);
 
     $conditionsPrimary = DataList::create([
