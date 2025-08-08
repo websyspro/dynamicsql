@@ -160,6 +160,19 @@ class QueryBuild
     return $columns->joinWithComma();
   }
 
+  private function getColumnsBase(
+  ): string {
+    if($this->hasSelect() === false){
+      return "*";
+    }
+
+    return $this->select->tokens->copy()->mapper(
+      fn(Column $column) => $column->toString(
+         $this->select->getParameters(), $this->table
+      )
+    )->JoinWithComma();
+  }  
+
   private function getColumns(
   ): string {
     if($this->hasSelect() === false){
@@ -300,7 +313,7 @@ class QueryBuild
   private function getSqlBase(
   ): string {
     return (
-      "(Select * 
+      "(Select {$this->getColumnsBase()}
           From {$this->getTable()}
          Where {$this->getWherePrimary()} 
                {$this->getGroupBy()}
