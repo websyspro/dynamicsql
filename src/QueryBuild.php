@@ -12,7 +12,6 @@ use Websyspro\DynamicSql\Enums\EDriverType;
 use Websyspro\DynamicSql\Enums\EOrderByPriorityType;
 use Websyspro\DynamicSql\Shareds\Column;
 use Websyspro\DynamicSql\Shareds\ItemParameter;
-use Websyspro\DynamicSql\Test\Entitys\DocumentEntity;
 use Websyspro\Entity\Core\StructureTable;
 
 class QueryBuild

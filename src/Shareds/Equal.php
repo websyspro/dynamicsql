@@ -414,7 +414,11 @@ class Equal
       } else {
         [ $equalA, $equalB, $equalC ] = (
           $this->equals->all()
-        ); 
+        );
+
+        if($this->isLeftJoin === true){
+          return null;
+        }
 
         if($this->hasField($equalA)){
           if($this->hasParsed($equalC)){
