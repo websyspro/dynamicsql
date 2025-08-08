@@ -67,21 +67,40 @@ class Column
   }
 
   public function toString(
-    DataList $parameters
+    DataList $parameters,
+    string|null $table = null
   ): string {
+    $hasTableBase = (
+      is_null($table)
+    );
+
     [ $aliasFromParameter ] = $parameters->copy()->where(
-      fn(ItemParameter $ip) => $ip->structureTable->table === $this->table 
+      fn(ItemParameter $ip) => $ip->structureTable->table === (
+        $hasTableBase ? $this->table : $table
+      ) 
     )->all();
 
     if($aliasFromParameter instanceof ItemParameter){
       if(isset($this->method) === true){
-        $columnAlias = sprintf( "%s(%s.%s) As %s_%s", ...[
-          $this->method, $this->table, $this->name, $aliasFromParameter->name, $this->name
-        ]);
+        if( $hasTableBase ){
+          $columnAlias = sprintf( "%s(%s.%s) As %s_%s", ...[
+            $this->method, $this->table, $this->name, $aliasFromParameter->name, $this->name
+          ]);          
+        } else {
+          $columnAlias = sprintf( "%s(%s.%s) As %s", ...[
+            $this->method, $this->table, $this->name, $this->name
+          ]);
+        }
       } else {
-        $columnAlias = sprintf( "%s.%s As %s_%s", ...[
-          $this->table, $this->name, $aliasFromParameter->name, $this->name
-        ]);
+        if( $hasTableBase ){
+          $columnAlias = sprintf( "%s.%s As %s_%s", ...[
+            $this->table, $this->name, $aliasFromParameter->name, $this->name
+          ]);
+        } else {
+          $columnAlias = sprintf( "%s.%s As %s", ...[
+            $this->table, $this->name, $this->name
+          ]);
+        }
       }
 
       if(isset($this->surName) === true){
