@@ -180,7 +180,9 @@ class QueryBuild
       return "Where 1=1";
     }
 
-    return $this->where->getCompare()->conditionsPrimary->first();
+    return preg_replace(
+      "#And 1 = 1#", "", $this->where->getCompare()->conditionsPrimary->first()
+    );
   }
 
   private function getPagination(

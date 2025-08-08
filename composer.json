@@ -18,7 +18,8 @@
     }
   ],
   "scripts": {
-    "watch": "powershell -ExecutionPolicy Bypass -File ./vendor/websyspro/watch/src/watch.ps1"
+    "watch": "powershell -ExecutionPolicy Bypass -File ./vendor/websyspro/watch/src/watch.ps1",
+    "update-git": "git add . && git commit -m \"Update components\" && git push origin HEAD"
   },
   "require-dev": {
     "websyspro/common": "dev-main",
