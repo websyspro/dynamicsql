@@ -417,7 +417,7 @@ class Equal
         );
 
         if($this->isLeftJoin === true){
-          return null;
+          return "1 = 1";
         }
 
         if($this->hasField($equalA)){
