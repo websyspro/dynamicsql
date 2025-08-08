@@ -143,7 +143,9 @@ extends AbstractByFn
 
     $conditionsSecundary = DataList::create([
       $this->tokens->copy()->mapper(
-        fn(Equal $token) => $token->getCompare()
+        fn(Equal $token) => $token->getCompare(
+          $forms->first(), true
+        )
       )->joinWithSpace()
     ]);    
 

@@ -81,7 +81,7 @@ class Column
     )->all();
 
     if($aliasFromParameter instanceof ItemParameter){
-      if(isset($this->method) === true){
+      if(isset($this->method) === true && $hasTableBase === false){
         if( $hasTableBase ){
           $columnAlias = sprintf( "%s(%s.%s) As %s_%s", ...[
             $this->method, $this->table, $this->name, $aliasFromParameter->name, $this->name

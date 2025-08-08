@@ -353,9 +353,10 @@ class Equal
   }
 
   public function getCompare(
-    string|null $tableBase = null
+    string|null $tableBase = null,
+    bool|null $isSecundary = null
   ): string|null {
-    if($tableBase !== null){
+    if($isSecundary === null){
       if($this->equalType !== EqualType::Equal){
         return $this->equals->First(); 
       }
@@ -417,6 +418,10 @@ class Equal
         );
 
         if($this->isLeftJoin === true){
+          return "1 = 1";
+        }
+
+        if($equalA->table === $tableBase || $equalC->table === $tableBase){
           return "1 = 1";
         }
 
