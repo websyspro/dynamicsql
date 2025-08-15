@@ -295,9 +295,16 @@ class QueryBuild
       )
     );
 
-    return $orderByList->count() !== 0
-      ? "Order By {$orderByList->joinWithComma()}"
-      : "Order By 1 Asc";
+    if($orderByPriorityType == EOrderByPriorityType::Primary){
+      return $orderByList->count() !== 0
+        ? "Order By {$orderByList->joinWithComma()}"
+        : "Order By 1 Asc";
+
+    } else {
+      return $orderByList->count() !== 0
+        ? "Order By {$orderByList->joinWithComma()}"
+        : "";
+    }
   }
 
   private function getOrderByPrimary(
