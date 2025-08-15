@@ -3,11 +3,13 @@
 namespace Websyspro\DynamicSql;
 
 use Websyspro\Commons\DataList;
+use Websyspro\Commons\Util;
 use Websyspro\DynamicSql\Core\GroupByFn;
 use Websyspro\DynamicSql\Core\OrderByAscByFn;
 use Websyspro\DynamicSql\Core\OrderByDescByFn;
 use Websyspro\DynamicSql\Core\SelectByFn;
 use Websyspro\DynamicSql\Core\WhereByFn;
+use Websyspro\DynamicSql\Enums\EColumnPriorityType;
 use Websyspro\DynamicSql\Enums\EDriverType;
 use Websyspro\DynamicSql\Enums\EOrderByPriorityType;
 use Websyspro\DynamicSql\Shareds\Column;
@@ -166,11 +168,14 @@ class QueryBuild
       return "*";
     }
 
-    return $this->select->tokens->copy()->mapper(
-      fn(Column $column) => $column->toString(
-         $this->select->getParameters(), $this->table
-      )
-    )->JoinWithComma();
+    return (
+      $this->select->tokens->copy()
+        ->where(fn(Column $column) => $column->table === $this->table)
+        ->mapper(fn(Column $column) => $column->toString(
+          EColumnPriorityType::Primary
+        )
+      )->JoinWithComma()
+    );
   }  
 
   private function getColumns(
@@ -179,11 +184,13 @@ class QueryBuild
       return $this->getColumnsFromWhere();
     }
 
-    return $this->select->tokens->copy()->mapper(
-      fn(Column $column) => $column->toString(
-         $this->select->getParameters()
-      )
-    )->JoinWithComma();
+    return (
+      $this->select->tokens->copy()
+        ->mapper(fn(Column $column) => $column->toString(
+          EColumnPriorityType::Secundary
+        )
+      )->JoinWithComma()
+    );
   }
 
   private function getWherePrimary(
@@ -193,7 +200,11 @@ class QueryBuild
     }
 
     return preg_replace(
-      "#And 1 = 1#", "", $this->where->getCompare()->conditionsPrimary->first()
+      "#And 1 = 1#", "", (
+        $this->where
+          ->getCompare()->conditionsPrimary
+          ->first()
+      )
     );
   }
 
@@ -240,9 +251,9 @@ class QueryBuild
       return "";
     }
 
-    $groupBys = $this->groupBy->tokens->mapper(
-      fn(Column $column ) => $column->getOrderByString()
-    )->joinWithComma();
+    $groupBys = $this->groupBy->tokens->copy()
+      ->mapper(fn(Column $column) => $column->getOrderByString())
+      ->joinWithComma();
 
     return "Group By {$groupBys}";
   }

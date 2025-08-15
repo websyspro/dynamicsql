@@ -3,6 +3,7 @@
 namespace Websyspro\DynamicSql\Shareds;
 
 use Websyspro\Commons\DataList;
+use Websyspro\DynamicSql\Enums\EColumnPriorityType;
 
 class Column
 {
@@ -66,12 +67,51 @@ class Column
     unset($this->column);
   }
 
+  private function hasMethod(
+  ): bool {
+    return isset($this->method) === true;
+  }
+
   public function toString(
+    EColumnPriorityType $eColumnPriorityType
+  ): string {
+    if($this->hasMethod()){
+      $ucFirst = ucfirst($this->name);
+    }
+
+    $table = lcfirst(
+      $this->table
+    );
+
+    if($eColumnPriorityType === EColumnPriorityType::Primary){
+      if($this->hasMethod()){
+        $column = "{$this->method}({$this->table}.{$this->name}) As {$this->method}{$ucFirst}";
+      } else {
+        $column = "{$this->table}.{$this->name} As {$this->name}";
+      }
+    }
+
+    if($eColumnPriorityType === EColumnPriorityType::Secundary){
+      if($this->hasMethod()){
+        $column = "{$this->table}.{$this->method}{$ucFirst} As {$table}_{$this->method}{$ucFirst}";      
+      } else {
+        $column = "{$this->table}.{$this->name} As {$table}_{$this->name}";
+      }   
+    }
+
+    return $column;
+  }
+
+  public function toString___(
     DataList $parameters,
     string|null $table = null
   ): string {
     $hasTableBase = (
-      is_null($table)
+      is_null($table) === false
+    );
+
+    $isPrimary = (
+      is_null($table) === false
     );
 
     [ $aliasFromParameter ] = $parameters->copy()->where(
@@ -80,6 +120,8 @@ class Column
       ) 
     )->all();
 
+
+
     if($aliasFromParameter instanceof ItemParameter){
       if(isset($this->method) === true && $hasTableBase === false){
         if( $hasTableBase ){
@@ -87,8 +129,8 @@ class Column
             $this->method, $this->table, $this->name, $aliasFromParameter->name, $this->name
           ]);          
         } else {
-          $columnAlias = sprintf( "%s(%s.%s) As %s", ...[
-            $this->method, $this->table, $this->name, $this->name
+          $columnAlias = sprintf( "%s(%s.%s) As %s%s", ...[
+            $this->method, $this->table, $this->name, $this->method, ucfirst($this->name)
           ]);
         }
       } else {
@@ -110,7 +152,36 @@ class Column
       }
     }
 
-    return $columnAlias;
+    $isPrimary = (
+      $table !== null
+    );
+
+    [ $itemParameter ] = $parameters->copy()->where(
+      fn(ItemParameter $itemParameter) => (
+        $itemParameter->structureTable->table === (
+          $isPrimary ? $table : $this->table 
+        )
+      ) 
+    )->all();
+
+    if(isset($this->method) === true){
+      $column = sprintf( "%s(%s.%s) As %s%s", ...[
+        $this->method, $this->table, $this->name, $this->method, ucfirst($this->name)
+      ]);
+    } else
+    if(isset($this->method) === false){
+      $column = sprintf( "%s.%s As %s_%s", ...[
+        $this->table, $this->name, $aliasFromParameter->name, $this->name
+      ]);
+    }
+
+    if(isset($this->surName) === true){
+      $column = sprintf( "%s.%s As %s", ...[
+        $this->table, $this->name, $this->surName
+      ]);   
+    }    
+
+    return $column;
   }
 
   public function getOrderByString(
