@@ -114,7 +114,7 @@ class Equal
       if(preg_match( "/(!=|==|>=|<=|<>)/i", $equal) === 0){
         $hasStatic = $this->statics->Copy()->whereByKey(
           function(string $key) use($equal) {
-            // antigo preg_match("#(\{\\$$key\})|(\\$$key)|(\w+\.\w+))#", $equal) === 1
+            //// antigo preg_match("#(\{\\$$key\})|(\\$$key)|(\w+\.\w+))#", $equal) === 1
             return preg_match("#(^\{\\$$key)|(^\\$$key)#", preg_replace("#\->#", ".", $equal)) === 1;
           }
         );
